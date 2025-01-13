@@ -1,0 +1,38 @@
+﻿<Window x:Class="MyPaint.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MyPaint"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Canvas Name="MainCanvas" 
+                MouseDown="MainCanvas_MouseDown" 
+                MouseLeftButtonDown="MainCanvas_MouseLeftButtonDown" MouseMove="MainCanvas_MouseMove">
+            <Canvas.Background>
+                <SolidColorBrush Color="NavajoWhite" Opacity="1"/>
+            </Canvas.Background>
+        </Canvas>
+        <ToolBarPanel>
+            <ToolBar VerticalAlignment="Top">
+                <Button x:Name="buttonDraw" Click="buttonDraw_Click">Rysuj dowolnie</Button>
+                <Button x:Name="buttonPoints" Click="buttonPoints_Click">Rysuj punkty</Button>
+                <Button x:Name="buttonLines" Click="buttonLines_Click">Rysuj linie</Button>
+                <Menu>
+                    <MenuItem Header="Odcinki">
+                        <MenuItem x:Name="drawSegment" Header="Rysuj odcinek" Click="drawSegment_Click"/>
+                        <MenuItem x:Name="editSegment" Header="Edytuj odcinek" Click="editSegment_Click"/>
+                    </MenuItem>
+                    <MenuItem Header="Kształty">
+                        <MenuItem x:Name="drawRect" Header="Rysuj prostokąt" Click="drawRect_Click"/>
+                        <MenuItem x:Name="editPolygon" Header="Rysuj polygon" Click="editPolygon_Click"/>
+                    </MenuItem>
+                </Menu>
+                <Rectangle x:Name="colorPicker" Height="20" Width="20" Margin="2" Fill="Black" MouseLeftButtonDown="colorPicker_MouseLeftButtonDown">
+
+                </Rectangle>
+            </ToolBar>
+        </ToolBarPanel>
+    </Grid>
+</Window>
