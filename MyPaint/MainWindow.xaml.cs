@@ -32,6 +32,7 @@ enum DrawStyle
     Segment,
     EditSegment,
     Rectangle,
+    Ellipse,
     Polygon
 }
 
@@ -233,7 +234,7 @@ public partial class MainWindow : Window
     {
         var size = DrawManager.PolygonProperties.Size;
         var brushColor = DrawManager.PolygonProperties.BrushColor;
-        var polygon = DrawManager.DrawPolygon(_currentMousePosition, size, brushColor);
+        var polygon = DrawManager.DrawRegularPolygon(_currentMousePosition, size, 5u, brushColor);
 
         mainCanvas.Children.Add(polygon);
     }
