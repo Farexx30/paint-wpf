@@ -93,6 +93,9 @@ public partial class MainWindow : Window
             case DrawStyle.Point:
                 AddPointAndMakeVisible();
                 break;
+            case DrawStyle.Ellipse:
+                AddEllipseAndMakeVisible();
+                break;
             case DrawStyle.Segment:
                 HandleSegmentCreation();
                 break;
@@ -123,8 +126,8 @@ public partial class MainWindow : Window
     private void DrawFreestyleButton_Click(object sender, RoutedEventArgs e)
     {
         _drawStyle = DrawStyle.Freestyle;
-        _newSegmentStartPoint = null;
 
+        _newSegmentStartPoint = null;
         RemoveSegmentPointsEffect();
         _selectedSegmentToEdit = null;
         _editSegmentMode = null;
@@ -133,8 +136,19 @@ public partial class MainWindow : Window
     private void DrawPointsButton_Click(object sender, RoutedEventArgs e)
     {
         _drawStyle = DrawStyle.Point;
-        _newSegmentStartPoint = null;
 
+        _newSegmentStartPoint = null;
+        RemoveSegmentPointsEffect();
+        _selectedSegmentToEdit = null;
+        _editSegmentMode = null;
+    }
+
+
+    private void DrawEllipseButton_Click(object sender, RoutedEventArgs e)
+    {
+        _drawStyle = DrawStyle.Ellipse;
+
+        _newSegmentStartPoint = null;
         RemoveSegmentPointsEffect();
         _selectedSegmentToEdit = null;
         _editSegmentMode = null;
@@ -160,8 +174,8 @@ public partial class MainWindow : Window
     private void DrawRectangleMenuItem_Click(object sender, RoutedEventArgs e)
     {
         _drawStyle = DrawStyle.Rectangle;
-        _newSegmentStartPoint = null;
 
+        _newSegmentStartPoint = null;
         RemoveSegmentPointsEffect();
         _selectedSegmentToEdit = null;
         _editSegmentMode = null;
@@ -170,8 +184,8 @@ public partial class MainWindow : Window
     private void DrawPolygonMenuItem_Click(object sender, RoutedEventArgs e)
     {
         _drawStyle = DrawStyle.Polygon;
-        _newSegmentStartPoint = null;
 
+        _newSegmentStartPoint = null;
         RemoveSegmentPointsEffect();
         _selectedSegmentToEdit = null;
         _editSegmentMode = null;
@@ -194,6 +208,19 @@ public partial class MainWindow : Window
 
     // !!! ADD AND MAKE VISIBLE METHOD !!! //
     private void AddPointAndMakeVisible()
+    {
+        var width = DrawManager.EllipseProperties.Width;
+        var height = DrawManager.EllipseProperties.Height;
+        var brushColor = DrawManager.EllipseProperties.BrushColor;
+        var ellipse = DrawManager.DrawEllipse(width, height, brushColor, true);
+
+        Canvas.SetLeft(ellipse, _currentMousePosition.X - ellipse.Width / 2);
+        Canvas.SetTop(ellipse, _currentMousePosition.Y - ellipse.Height / 2);
+
+        mainCanvas.Children.Add(ellipse);
+    }
+
+    private void AddEllipseAndMakeVisible()
     {
         var width = DrawManager.EllipseProperties.Width;
         var height = DrawManager.EllipseProperties.Height;
@@ -306,8 +333,8 @@ public partial class MainWindow : Window
 
         foreach (var segment in _segments)
         {
-            var startEllipse = DrawManager.DrawEllipse(width, height, brushColor);
-            var endEllipse = DrawManager.DrawEllipse(width, height, brushColor);
+            var startEllipse = DrawManager.DrawEllipse(width, height, brushColor, true);
+            var endEllipse = DrawManager.DrawEllipse(width, height, brushColor, true);
             var startPoint = new Point(segment.X1, segment.Y1);
             var endPoint = new Point(segment.X2, segment.Y2);
 

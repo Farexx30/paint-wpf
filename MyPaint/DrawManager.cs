@@ -27,8 +27,8 @@ internal static class DrawManager
 
     internal static class EllipseProperties
     {
-        internal static double Width { get; set; } = 6d;
-        internal static double Height { get; set; } = 6d;
+        internal static double Width { get; set; } = 60d;
+        internal static double Height { get; set; } = 60d;
         internal static SolidColorBrush BrushColor { get; set; } = new SolidColorBrush(Color.FromRgb(0, 0, 0));
     }
 
@@ -66,14 +66,19 @@ internal static class DrawManager
         return rectangle;
     }
 
-    internal static Ellipse DrawEllipse(double width, double height, SolidColorBrush brushColor)
+    internal static Ellipse DrawEllipse(double width, double height, SolidColorBrush brushColor, bool shouldFill = false)
     {
         var ellipse = new Ellipse
         {
             Width = width,
-            Height = height,
-            Fill = brushColor
+            Height = height,      
+            Stroke = brushColor
         };
+
+        if (shouldFill)
+        {
+            ellipse.Fill = brushColor;
+        }
 
         return ellipse;
     }
