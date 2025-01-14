@@ -12,6 +12,34 @@ namespace MyPaint;
 
 internal static class DrawManager
 {
+    //Static properties:
+    internal static class LineProperties
+    {
+        internal static SolidColorBrush BrushColor { get; set; } = new SolidColorBrush(Color.FromRgb(0, 0, 0));
+    }
+
+    internal static class RectangleProperties
+    {
+        internal static double Width { get; set; } = 60d;
+        internal static double Height { get; set; } = 40d;
+        internal static SolidColorBrush BrushColor { get; set; } = new SolidColorBrush(Color.FromRgb(0, 0, 0));
+    }
+
+    internal static class EllipseProperties
+    {
+        internal static double Width { get; set; } = 6d;
+        internal static double Height { get; set; } = 6d;
+        internal static SolidColorBrush BrushColor { get; set; } = new SolidColorBrush(Color.FromRgb(0, 0, 0));
+    }
+
+    internal static class PolygonProperties
+    {
+        internal static double Size { get; set; } = 20d;
+        internal static SolidColorBrush BrushColor { get; set; } = new SolidColorBrush(Color.FromRgb(0, 0, 0));
+    }
+
+
+    //Methods:
     internal static Line DrawLine(Point startPoint, Point endPoint, SolidColorBrush brushColor)
     {
         var line = new Line
