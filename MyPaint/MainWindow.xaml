@@ -22,9 +22,10 @@
                 <Menu x:Name="menu" GotFocus="Menu_GotFocus" LostFocus="Menu_LostFocus">
                     <MenuItem Header="Kształty">
                         <MenuItem x:Name="drawRectangleMenuItem" Header="Rysuj prostokąt" Click="DrawRectangleMenuItem_Click"/>
-                        <MenuItem x:Name="drawPolygonMenuItem" Header="Rysuj polygon" Click="DrawPolygonMenuItem_Click"/>
                         <MenuItem x:Name="drawEllipseButton" Header="Rysuj elipsę" Click="DrawEllipseButton_Click"/>
                         <MenuItem x:Name="drawArrowButton" Header="Rysuj strzałkę" Click="DrawArrowButton_Click"/>
+                        <MenuItem x:Name="drawTreeButton" Header="Rysuj drzewo" Click="DrawTreeButton_Click"/>
+                        <MenuItem x:Name="drawPolygonMenuItem" Header="Rysuj wielokąt foremny" Click="DrawPolygonMenuItem_Click"/>
                     </MenuItem>
                     <MenuItem Header="Odcinki">
                         <MenuItem x:Name="drawSegmentMenuItem" Header="Rysuj odcinek" Click="DrawSegmentMenuItem_Click"/>

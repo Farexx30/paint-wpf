@@ -32,6 +32,7 @@ enum DrawStyle
     Rectangle,
     Ellipse,
     Arrow,
+    Tree,
     Polygon,
     Segment,
     EditSegment,
@@ -89,10 +90,13 @@ public partial class MainWindow : Window
     {
         _currentMousePosition = e.GetPosition(this);
 
-        switch(_drawStyle)
+        switch (_drawStyle)
         {
             case DrawStyle.Point:
                 AddPointAndMakeVisible();
+                break;
+            case DrawStyle.Rectangle:
+                AddRectangleAndMakeVisible();
                 break;
             case DrawStyle.Ellipse:
                 AddEllipseAndMakeVisible();
@@ -100,17 +104,17 @@ public partial class MainWindow : Window
             case DrawStyle.Arrow:
                 AddArrowAndMakeVisible();
                 break;
+            case DrawStyle.Tree:
+                AddTreeAndMakeVisible();
+                break;
+            case DrawStyle.Polygon:
+                AddPolygonAndMakeVisible();
+                break;
             case DrawStyle.Segment:
                 HandleSegmentCreation();
                 break;
             case DrawStyle.EditSegment:
                 HandleSegmentEdit();
-                break;
-            case DrawStyle.Rectangle:
-                AddRectangleAndMakeVisible();
-                break;
-            case DrawStyle.Polygon:
-                AddPolygonAndMakeVisible();
                 break;
         }
     }
@@ -146,7 +150,15 @@ public partial class MainWindow : Window
         _selectedSegmentToEdit = null;
         _editSegmentMode = null;
     }
+    private void DrawRectangleMenuItem_Click(object sender, RoutedEventArgs e)
+    {
+        _drawStyle = DrawStyle.Rectangle;
 
+        _newSegmentStartPoint = null;
+        RemoveSegmentPointsEffect();
+        _selectedSegmentToEdit = null;
+        _editSegmentMode = null;
+    }
 
     private void DrawEllipseButton_Click(object sender, RoutedEventArgs e)
     {
@@ -168,26 +180,9 @@ public partial class MainWindow : Window
         _editSegmentMode = null;
     }
 
-    private void DrawSegmentMenuItem_Click(object sender, RoutedEventArgs e)
+    private void DrawTreeButton_Click(object sender, RoutedEventArgs e)
     {
-        _drawStyle = DrawStyle.Segment;
-
-        RemoveSegmentPointsEffect();
-        _selectedSegmentToEdit = null;
-        _editSegmentMode = null;
-    }
-
-    private void EditSegmentMenuItem_Click(object sender, RoutedEventArgs e)
-    {
-        _drawStyle = DrawStyle.EditSegment;
-        _newSegmentStartPoint = null;
-
-        AddSegmentPointsEffect();
-    }
-
-    private void DrawRectangleMenuItem_Click(object sender, RoutedEventArgs e)
-    {
-        _drawStyle = DrawStyle.Rectangle;
+        _drawStyle = DrawStyle.Tree;
 
         _newSegmentStartPoint = null;
         RemoveSegmentPointsEffect();
@@ -203,6 +198,24 @@ public partial class MainWindow : Window
         RemoveSegmentPointsEffect();
         _selectedSegmentToEdit = null;
         _editSegmentMode = null;
+    }
+
+
+    private void DrawSegmentMenuItem_Click(object sender, RoutedEventArgs e)
+    {
+        _drawStyle = DrawStyle.Segment;
+
+        RemoveSegmentPointsEffect();
+        _selectedSegmentToEdit = null;
+        _editSegmentMode = null;
+    }
+
+    private void EditSegmentMenuItem_Click(object sender, RoutedEventArgs e)
+    {
+        _drawStyle = DrawStyle.EditSegment;
+        _newSegmentStartPoint = null;
+
+        AddSegmentPointsEffect();
     }
 
     // !!! NEW WINDOW EVENTS !!! //
@@ -234,30 +247,6 @@ public partial class MainWindow : Window
         mainCanvas.Children.Add(ellipse);
     }
 
-    private void AddEllipseAndMakeVisible()
-    {
-        var width = DrawManager.EllipseProperties.Width;
-        var height = DrawManager.EllipseProperties.Height;
-        var brushColor = DrawManager.EllipseProperties.BrushColor;
-        var ellipse = DrawManager.DrawEllipse(width, height, brushColor);
-
-        Canvas.SetLeft(ellipse, _currentMousePosition.X - ellipse.Width / 2);
-        Canvas.SetTop(ellipse, _currentMousePosition.Y - ellipse.Height / 2);
-
-        mainCanvas.Children.Add(ellipse);
-    }
-
-    private void AddSegmentAndMakeVisible()
-    {
-        var brushColor = DrawManager.LineProperties.BrushColor;
-        var segment = DrawManager.DrawLine(_newSegmentStartPoint!.Value, _currentMousePosition, brushColor);
-
-        mainCanvas.Children.Add(segment);
-        _segments.Add(segment);
-
-        _newSegmentStartPoint = null;
-    }
-
     private void AddRectangleAndMakeVisible()
     {
         var width = DrawManager.RectangleProperties.Width;
@@ -271,6 +260,18 @@ public partial class MainWindow : Window
         mainCanvas.Children.Add(rectangle);
     }
 
+    private void AddEllipseAndMakeVisible()
+    {
+        var width = DrawManager.EllipseProperties.Width;
+        var height = DrawManager.EllipseProperties.Height;
+        var brushColor = DrawManager.EllipseProperties.BrushColor;
+        var ellipse = DrawManager.DrawEllipse(width, height, brushColor);
+
+        Canvas.SetLeft(ellipse, _currentMousePosition.X - ellipse.Width / 2);
+        Canvas.SetTop(ellipse, _currentMousePosition.Y - ellipse.Height / 2);
+
+        mainCanvas.Children.Add(ellipse);
+    }
 
     private void AddArrowAndMakeVisible()
     {
@@ -278,18 +279,36 @@ public partial class MainWindow : Window
         var brushColor = DrawManager.ArrowProperties.BrushColor;
         var arrow = DrawManager.DrawArrow(_currentMousePosition, size, brushColor);
 
-        Canvas.SetLeft(arrow, _currentMousePosition.X - arrow.Width / 2);
-        Canvas.SetTop(arrow, _currentMousePosition.Y - arrow.Height / 2);
         mainCanvas.Children.Add(arrow);
+    }
+
+    private void AddTreeAndMakeVisible()
+    {
+        var size = DrawManager.TreeProperties.Size;
+        var brushColor = DrawManager.TreeProperties.BrushColor;
+        var tree = DrawManager.DrawTree(_currentMousePosition, size, brushColor);
+
+        mainCanvas.Children.Add(tree);
     }
 
     private void AddPolygonAndMakeVisible()
     {
         var size = DrawManager.PolygonProperties.Size;
         var brushColor = DrawManager.PolygonProperties.BrushColor;
-        var polygon = DrawManager.DrawRegularPolygon(_currentMousePosition, size, 5u, brushColor);
+        var polygon = DrawManager.DrawRegularPolygon(_currentMousePosition, size, 8u, brushColor);
 
         mainCanvas.Children.Add(polygon);
+    }
+
+    private void AddSegmentAndMakeVisible()
+    {
+        var brushColor = DrawManager.LineProperties.BrushColor;
+        var segment = DrawManager.DrawLine(_newSegmentStartPoint!.Value, _currentMousePosition, brushColor);
+
+        mainCanvas.Children.Add(segment);
+        _segments.Add(segment);
+
+        _newSegmentStartPoint = null;
     }
 
     // !!! SEGMENT SPECIFIC METHODS !!! //
@@ -339,7 +358,7 @@ public partial class MainWindow : Window
 
             _selectedSegmentToEdit = null;
             _editSegmentMode = null;
-        }       
+        }
     }
 
 

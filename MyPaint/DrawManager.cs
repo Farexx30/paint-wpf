@@ -45,6 +45,12 @@ internal static class DrawManager
         internal static SolidColorBrush BrushColor { get; set; } = new SolidColorBrush(Color.FromRgb(0, 0, 0));
     }
 
+    internal static class TreeProperties
+    {
+        internal static double Size { get; set; } = 40d;
+        internal static SolidColorBrush BrushColor { get; set; } = new SolidColorBrush(Color.FromRgb(0, 0, 0));
+    }
+
 
     //Methods:
     internal static Line DrawLine(Point startPoint, Point endPoint, SolidColorBrush brushColor)
@@ -148,5 +154,54 @@ internal static class DrawManager
         };
         
         return arrow;
+    }
+
+    internal static Polygon DrawTree(Point mousePosition, double size, SolidColorBrush brushColor)
+    {
+        var mousePositionX = mousePosition.X;
+        var mousePositionY = mousePosition.Y;
+
+        var point1 = new Point(mousePositionX + size, mousePositionY + size * 3);
+        var point2 = new Point(mousePositionX + size, mousePositionY + size * 2);
+        var point3 = new Point(mousePositionX + size * 4, mousePositionY + size * 2);
+        var point4 = new Point(mousePositionX + size, mousePositionY);
+        var point5 = new Point(mousePositionX + size * 3, mousePositionY);
+        var point6 = new Point(mousePositionX + size, mousePositionY - size * 2);
+        var point7 = new Point(mousePositionX + size * 2, mousePositionY - size * 2);
+        var point8 = new Point(mousePositionX, mousePositionY - size * 4); //Peak of tree
+        var point9 = new Point(mousePositionX - size * 2, mousePositionY - size * 2);
+        var point10 = new Point(mousePositionX - size, mousePositionY - size * 2);
+        var point11 = new Point(mousePositionX - size * 3, mousePositionY);
+        var point12 = new Point(mousePositionX - size, mousePositionY);
+        var point13 = new Point(mousePositionX - size * 4, mousePositionY + size * 2);
+        var point14 = new Point(mousePositionX - size, mousePositionY + size * 2);
+        var point15 = new Point(mousePositionX - size, mousePositionY + size * 3);
+
+        var points = new PointCollection
+        {
+            point1,
+            point2,
+            point3,
+            point4,
+            point5,
+            point6,
+            point7,
+            point8,
+            point9,
+            point10,
+            point11,
+            point12,
+            point13,
+            point14,
+            point15
+        };
+
+        var tree = new Polygon
+        {
+            Stroke = brushColor,
+            Points = points,
+        };
+
+        return tree;
     }
 }
