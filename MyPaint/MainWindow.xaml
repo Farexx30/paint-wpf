@@ -19,7 +19,12 @@
             <ToolBar VerticalAlignment="Top">
                 <Button x:Name="drawFreestyleButton" Click="DrawFreestyleButton_Click">Rysuj dowolnie</Button>
                 <Button x:Name="drawPointsButton" Click="DrawPointsButton_Click">Rysuj punkty</Button>
+                <Button x:Name="drawBrokenLineButton" Click="DrawBrokenLine_Click">Rysuj linię łamaną</Button>
                 <Menu x:Name="menu" GotFocus="Menu_GotFocus" LostFocus="Menu_LostFocus">
+                    <MenuItem Header="Odcinki">
+                        <MenuItem x:Name="drawSegmentMenuItem" Header="Rysuj odcinek" Click="DrawSegmentMenuItem_Click"/>
+                        <MenuItem x:Name="editSegmentMenuItem" Header="Edytuj odcinek" Click="EditSegmentMenuItem_Click"/>
+                    </MenuItem>
                     <MenuItem Header="Kształty">
                         <MenuItem x:Name="drawRectangleMenuItem" Header="Rysuj prostokąt" Click="DrawRectangleMenuItem_Click"/>
                         <MenuItem x:Name="drawEllipseButton" Header="Rysuj elipsę" Click="DrawEllipseButton_Click"/>
@@ -27,10 +32,7 @@
                         <MenuItem x:Name="drawTreeButton" Header="Rysuj drzewo" Click="DrawTreeButton_Click"/>
                         <MenuItem x:Name="drawPolygonMenuItem" Header="Rysuj wielokąt foremny" Click="DrawPolygonMenuItem_Click"/>
                     </MenuItem>
-                    <MenuItem Header="Odcinki">
-                        <MenuItem x:Name="drawSegmentMenuItem" Header="Rysuj odcinek" Click="DrawSegmentMenuItem_Click"/>
-                        <MenuItem x:Name="editSegmentMenuItem" Header="Edytuj odcinek" Click="EditSegmentMenuItem_Click"/>
-                    </MenuItem>
+
                 </Menu>
                 <Rectangle x:Name="colorPickerRectangle" Height="20" Width="20" Margin="2" Fill="Black" MouseLeftButtonDown="ColorPickerRectangle_MouseLeftButtonDown">
 
