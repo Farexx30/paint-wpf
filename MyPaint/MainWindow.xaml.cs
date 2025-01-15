@@ -29,11 +29,12 @@ enum DrawStyle
 {
     Freestyle,
     Point,
-    Segment,
-    EditSegment,
     Rectangle,
     Ellipse,
-    Polygon
+    Arrow,
+    Polygon,
+    Segment,
+    EditSegment,
 }
 
 public partial class MainWindow : Window
@@ -96,6 +97,9 @@ public partial class MainWindow : Window
             case DrawStyle.Ellipse:
                 AddEllipseAndMakeVisible();
                 break;
+            case DrawStyle.Arrow:
+                AddArrowAndMakeVisible();
+                break;
             case DrawStyle.Segment:
                 HandleSegmentCreation();
                 break;
@@ -147,6 +151,16 @@ public partial class MainWindow : Window
     private void DrawEllipseButton_Click(object sender, RoutedEventArgs e)
     {
         _drawStyle = DrawStyle.Ellipse;
+
+        _newSegmentStartPoint = null;
+        RemoveSegmentPointsEffect();
+        _selectedSegmentToEdit = null;
+        _editSegmentMode = null;
+    }
+
+    private void DrawArrowButton_Click(object sender, RoutedEventArgs e)
+    {
+        _drawStyle = DrawStyle.Arrow;
 
         _newSegmentStartPoint = null;
         RemoveSegmentPointsEffect();
@@ -257,6 +271,18 @@ public partial class MainWindow : Window
         mainCanvas.Children.Add(rectangle);
     }
 
+
+    private void AddArrowAndMakeVisible()
+    {
+        var size = DrawManager.ArrowProperties.Size;
+        var brushColor = DrawManager.ArrowProperties.BrushColor;
+        var arrow = DrawManager.DrawArrow(_currentMousePosition, size, brushColor);
+
+        Canvas.SetLeft(arrow, _currentMousePosition.X - arrow.Width / 2);
+        Canvas.SetTop(arrow, _currentMousePosition.Y - arrow.Height / 2);
+        mainCanvas.Children.Add(arrow);
+    }
+
     private void AddPolygonAndMakeVisible()
     {
         var size = DrawManager.PolygonProperties.Size;
@@ -301,7 +327,6 @@ public partial class MainWindow : Window
         {
             if (_editSegmentMode == EditSegmentMode.StartPoint)
             {
-
                 _selectedSegmentToEdit.X1 = _currentMousePosition.X;
                 _selectedSegmentToEdit.Y1 = _currentMousePosition.Y;
             }

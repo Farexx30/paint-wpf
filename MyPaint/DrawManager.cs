@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Input;
+using System.Reflection;
 
 namespace MyPaint;
 
@@ -33,6 +34,12 @@ internal static class DrawManager
     }
 
     internal static class PolygonProperties
+    {
+        internal static double Size { get; set; } = 60d;
+        internal static SolidColorBrush BrushColor { get; set; } = new SolidColorBrush(Color.FromRgb(0, 0, 0));
+    }
+
+    internal static class ArrowProperties
     {
         internal static double Size { get; set; } = 60d;
         internal static SolidColorBrush BrushColor { get; set; } = new SolidColorBrush(Color.FromRgb(0, 0, 0));
@@ -108,5 +115,38 @@ internal static class DrawManager
         };
 
         return polygon;
+    }
+
+    internal static Polygon DrawArrow(Point mousePosition, double size, SolidColorBrush brushColor)
+    {
+        var mousePositionX = mousePosition.X;
+        var mousePositionY = mousePosition.Y;
+
+        var point1 = new Point(mousePositionX - size * 2, mousePositionY - size);
+        var point2 = new Point(mousePositionX + size, mousePositionY - size);
+        var point3 = new Point(mousePositionX + size, mousePositionY - size * 2);
+        var point4 = new Point(mousePositionX + size * 4, mousePositionY);
+        var point5 = new Point(mousePositionX + size, mousePositionY + size * 2);
+        var point6 = new Point(mousePositionX + size, mousePositionY + size);
+        var point7 = new Point(mousePositionX - size * 2, mousePositionY + size);
+
+        var points = new PointCollection
+        {
+            point1,
+            point2, 
+            point3, 
+            point4, 
+            point5, 
+            point6, 
+            point7
+        };
+
+        var arrow = new Polygon
+        {
+            Stroke = brushColor,
+            Points = points
+        };
+        
+        return arrow;
     }
 }
