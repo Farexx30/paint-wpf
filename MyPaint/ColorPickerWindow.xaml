@@ -19,23 +19,23 @@
         <Label Content="Wybierz kolor" HorizontalAlignment="Center" VerticalAlignment="Top" FontWeight="ExtraBold" Grid.Row="0" Grid.Column="0" FontSize="20"/>
 
         <Label Content="R" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" FontWeight="Bold" Margin="14,8,0,0" Height="30"/>
-        <TextBox x:Name="rValueTextBox" Width="35" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" Text="{Binding R, UpdateSourceTrigger=PropertyChanged}" MaxLength="3" PreviewTextInput="RValueTextBox_PreviewTextInput" Margin="41,12,0,0" />
+        <TextBox x:Name="rValueTextBox" Width="35" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" Text="{Binding R, UpdateSourceTrigger=PropertyChanged}" MaxLength="3" PreviewTextInput="RgbValueTextBox_PreviewTextInput" Margin="41,12,0,0" />
 
         <Label Content="G" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" FontWeight="Bold" Margin="14,38,0,0" Height="30"/>
-        <TextBox x:Name="gValueTextBox" Width="35" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" Text="{Binding G, UpdateSourceTrigger=PropertyChanged}" Margin="41,42,0,0" />
+        <TextBox x:Name="gValueTextBox" Width="35" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" Text="{Binding G, UpdateSourceTrigger=PropertyChanged}" MaxLength="3" PreviewTextInput="RgbValueTextBox_PreviewTextInput" Margin="41,42,0,0" />
 
         <Label Content="B" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" FontWeight="Bold" Margin="14,68,0,0" Height="30"/>
-        <TextBox x:Name="bValueTextBox" Width="35" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18"  Text="{Binding B, UpdateSourceTrigger=PropertyChanged}" Margin="41,72,0,0" />
+        <TextBox x:Name="bValueTextBox" Width="35" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18"  Text="{Binding B, UpdateSourceTrigger=PropertyChanged}" MaxLength="3" PreviewTextInput="RgbValueTextBox_PreviewTextInput" Margin="41,72,0,0" />
 
         
         <Label Content="H" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" FontWeight="Bold" Margin="129,8,0,0" Height="30"/>
-        <TextBox x:Name="hValueTextBox" Width="35" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18"  Text="{Binding H, UpdateSourceTrigger=PropertyChanged}" MaxLength="3" PreviewTextInput="RValueTextBox_PreviewTextInput" Margin="156,12,0,0" />
+        <TextBox x:Name="hValueTextBox" Width="35" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18"  Text="{Binding H, UpdateSourceTrigger=PropertyChanged}" MaxLength="3" Margin="156,12,0,0" PreviewTextInput="HsvValueTextBox_PreviewTextInput" />
 
         <Label Content="S" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" FontWeight="Bold" Margin="129,38,0,0" Height="30"/>
-        <TextBox x:Name="sValueTextBox" Width="35" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" Text="{Binding S, UpdateSourceTrigger=PropertyChanged}" Margin="156,42,0,0" />
+        <TextBox x:Name="sValueTextBox" Width="35" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" Text="{Binding S, UpdateSourceTrigger=PropertyChanged}" MaxLength="3" Margin="156,42,0,0" PreviewTextInput="HsvValueTextBox_PreviewTextInput" />
 
         <Label Content="V" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" FontWeight="Bold" Margin="129,68,0,0" Height="30"/>
-        <TextBox x:Name="vValueTextBox" Width="35" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" Text="{Binding V, UpdateSourceTrigger=PropertyChanged}" Margin="156,72,0,0" />
+        <TextBox x:Name="vValueTextBox" Width="35" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" Text="{Binding V, UpdateSourceTrigger=PropertyChanged}" MaxLength="3" Margin="156,72,0,0" PreviewTextInput="HsvValueTextBox_PreviewTextInput" />
 
         
         <Rectangle x:Name="colorPickerRectangle" Width="95" Height="95" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="Black" />

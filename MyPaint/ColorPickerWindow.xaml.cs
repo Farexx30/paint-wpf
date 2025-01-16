@@ -21,14 +21,22 @@ namespace MyPaint
     /// </summary>
     public partial class ColorPickerWindow : Window, INotifyPropertyChanged
     {
-        //OnPropertyChanged for data binding:
+        // !!! OnPropertyChanged for data binding !!! //
         public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        //Bindings:
+        // !!! PRIVATE FIELDS !!! //
+        private const string _hValueTextBoxName = "hValueTextBox";
+        private const string _sValueTextBoxName = "sValueTextBox";
+        private const string _vValueTextBoxName = "vValueTextBox";
+        private const uint _hMaxValue = 360u;
+        private const uint _sMaxValue = 100u;
+        private const uint _vMaxValue = 100u;
+
+        // !!! BINDINGS !!! //
         private string _r = string.Empty;
         public string R
         {
@@ -39,6 +47,8 @@ namespace MyPaint
                 {
                     _r = value;
                     OnPropertyChanged();
+
+                    UpdateHsvValues();
                 }
             }
         }
@@ -53,6 +63,8 @@ namespace MyPaint
                 {
                     _g = value;
                     OnPropertyChanged();
+
+                    UpdateHsvValues();
                 }
             }
         }
@@ -67,6 +79,8 @@ namespace MyPaint
                 {
                     _b = value;
                     OnPropertyChanged();
+
+                    UpdateHsvValues();
                 }
             }
         }
@@ -81,6 +95,8 @@ namespace MyPaint
                 {
                     _h = value;
                     OnPropertyChanged();
+
+                    UpdateRgbValues();
                 }
             }
         }
@@ -95,6 +111,8 @@ namespace MyPaint
                 {
                     _s = value;
                     OnPropertyChanged();
+
+                    UpdateRgbValues();
                 }
             }
         }
@@ -109,19 +127,71 @@ namespace MyPaint
                 {
                     _v = value;
                     OnPropertyChanged();
+
+                    UpdateRgbValues();
                 }
             }
         }
 
+        // !!! CONSTRUCTORS !!! //
         public ColorPickerWindow()
         {
             InitializeComponent();
             DataContext = this;
         }
 
-        private void RValueTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+
+        // !!! VALIDATION EVENTS !!! //
+        private void RgbValueTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            
+            var textBox = sender as TextBox;
+            var newText = textBox!.Text.Insert(textBox.CaretIndex, e.Text);
+
+            if (!byte.TryParse(newText, out _))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void HsvValueTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            var textBox = sender as TextBox;
+            var textBoxName = textBox!.Name;
+            var newText = textBox!.Text.Insert(textBox.CaretIndex, e.Text);
+
+            if (textBoxName == _hValueTextBoxName)
+            {
+                if (!uint.TryParse(newText, out var result) || result > _hMaxValue)
+                {
+                    e.Handled = true;
+                }
+            }
+            else if (textBoxName == _sValueTextBoxName)
+            {
+                if (!uint.TryParse(newText, out var result) || result > _sMaxValue)
+                {
+                    e.Handled = true;
+                }
+            }
+            else if (textBoxName == _vValueTextBoxName)
+            {
+                if (!uint.TryParse(newText, out var result) || result > _vMaxValue)
+                {
+                    e.Handled = true;
+                }
+            }
+        }
+
+
+        // !!! CONVERT METHODS !!! //
+        private void UpdateHsvValues()
+        {
+            //TODO: RGB -> HSV
+        }
+
+        private void UpdateRgbValues()
+        {
+            //TODO: HSV -> RGB
         }
     }
 }
