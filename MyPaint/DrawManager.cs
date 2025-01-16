@@ -14,6 +14,11 @@ namespace MyPaint;
 internal static class DrawManager
 {
     //Static properties:
+    internal static class GlobalProperties
+    {
+        internal static SolidColorBrush BrushColor { get; set; } = new SolidColorBrush(Color.FromRgb(0, 0, 0));
+    }
+
     internal static class LineProperties
     {
         internal static SolidColorBrush BrushColor { get; set; } = new SolidColorBrush(Color.FromRgb(0, 0, 0));

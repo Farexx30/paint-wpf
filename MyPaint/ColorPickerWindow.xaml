@@ -5,15 +5,43 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MyPaint"
         mc:Ignorable="d"
-        Title="ColorPickerWindow" Height="450" Width="800">
+        Title="ColorPickerWindow" Width="400" Height="220" >
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="51*"/>
-            <ColumnDefinition Width="749*"/>
+            <ColumnDefinition Width="220*"/>
+            <ColumnDefinition Width="150*"/>
         </Grid.ColumnDefinitions>
-        <Label Content="Wybierz kolor:" Grid.Column="1" HorizontalAlignment="Left" Margin="240,10,0,0" VerticalAlignment="Top" FontSize="20"/>
-        <TextBox x:Name="RValueTextBox" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="337,116,0,0" Text="000" TextWrapping="Wrap" Width="63" MaxLength="3" PreviewTextInput="RValueTextBox_PreviewTextInput" />
-        <TextBox x:Name="GValueTextBox" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="337,146,0,0" Text="000" TextWrapping="Wrap" Width="63" />
-        <TextBox x:Name="BValueTextBox" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="337,176,0,0" Text="000" TextWrapping="Wrap" Width="63" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40*"/>
+            <RowDefinition Height="120*"/>
+            <RowDefinition Height="40*"/>
+        </Grid.RowDefinitions>
+        <Label Content="Wybierz kolor" HorizontalAlignment="Center" VerticalAlignment="Top" FontWeight="ExtraBold" Grid.Row="0" Grid.Column="0" FontSize="20"/>
+
+        <Label Content="R" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" FontWeight="Bold" Margin="14,8,0,0" Height="30"/>
+        <TextBox x:Name="rValueTextBox" Width="35" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" Text="{Binding R, UpdateSourceTrigger=PropertyChanged}" MaxLength="3" PreviewTextInput="RValueTextBox_PreviewTextInput" Margin="41,12,0,0" />
+
+        <Label Content="G" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" FontWeight="Bold" Margin="14,38,0,0" Height="30"/>
+        <TextBox x:Name="gValueTextBox" Width="35" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" Text="{Binding G, UpdateSourceTrigger=PropertyChanged}" Margin="41,42,0,0" />
+
+        <Label Content="B" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" FontWeight="Bold" Margin="14,68,0,0" Height="30"/>
+        <TextBox x:Name="bValueTextBox" Width="35" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18"  Text="{Binding B, UpdateSourceTrigger=PropertyChanged}" Margin="41,72,0,0" />
+
+        
+        <Label Content="H" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" FontWeight="Bold" Margin="129,8,0,0" Height="30"/>
+        <TextBox x:Name="hValueTextBox" Width="35" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18"  Text="{Binding H, UpdateSourceTrigger=PropertyChanged}" MaxLength="3" PreviewTextInput="RValueTextBox_PreviewTextInput" Margin="156,12,0,0" />
+
+        <Label Content="S" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" FontWeight="Bold" Margin="129,38,0,0" Height="30"/>
+        <TextBox x:Name="sValueTextBox" Width="35" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" Text="{Binding S, UpdateSourceTrigger=PropertyChanged}" Margin="156,42,0,0" />
+
+        <Label Content="V" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" FontWeight="Bold" Margin="129,68,0,0" Height="30"/>
+        <TextBox x:Name="vValueTextBox" Width="35" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" Text="{Binding V, UpdateSourceTrigger=PropertyChanged}" Margin="156,72,0,0" />
+
+        
+        <Rectangle x:Name="colorPickerRectangle" Width="95" Height="95" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="Black" />
+
+
+        <Button Name="saveButton" Content="Zapisz" Width="80" Grid.Row="2" HorizontalAlignment="Left" Grid.Column="0" Margin="10,5,0,5"/>
+        <Button Name="cancelButton" Content="Anuluj" Width="80" HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0" Margin="0,5,10,5" />
     </Grid>
 </Window>
