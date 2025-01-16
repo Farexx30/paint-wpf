@@ -46,12 +46,13 @@ public partial class MainWindow : Window
     private Color _currentColor = Color.FromRgb(0, 0, 0); //Black color by default
 
     // !! SEGMENT AND BROKE LINE FIELDS !!! //
+    private Line? _currentSegment;
     private Point? _newSegmentStartPoint;
     // !!! SEGMENT FIELDS !!! //
-    private Line? _selectedSegmentToEdit;
+    private Point? _oldSegmentPoint;
     private EditSegmentMode? _editSegmentMode;
     private readonly List<Line> _segments = [];
-    private readonly List<System.Windows.Shapes.Ellipse> _editSegmentPoints = [];
+    private readonly List<System.Windows.Shapes.Ellipse> _segmentPointEffects = [];
 
     // !!! HELP FIELDS !!! /!
     private bool _isMenuFocused = false;
@@ -71,7 +72,9 @@ public partial class MainWindow : Window
     // !!! MOUSE EVENTS !!! //
     private void MainCanvas_MouseMove(object sender, MouseEventArgs e)
     {
-        if (e.LeftButton == MouseButtonState.Pressed && _drawStyle == DrawStyle.Freestyle)
+        if (e.LeftButton == MouseButtonState.Pressed 
+            && _drawStyle == DrawStyle.Freestyle
+            && _currentMousePosition is not null)
         {
             if (_isMenuFocused)
             {
@@ -86,6 +89,37 @@ public partial class MainWindow : Window
 
             mainCanvas.Children.Add(line);
         }
+        else if ((_drawStyle == DrawStyle.Segment || _drawStyle == DrawStyle.BrokenLine) 
+                && _newSegmentStartPoint is not null)
+        {
+            _currentMousePosition = e.GetPosition(this);
+
+            if (_currentSegment is null)
+            {
+                AddSegmentAndMakeVisible(out Line segment);
+                _currentSegment = segment;
+            }
+            else
+            {
+                _currentSegment.X2 = _currentMousePosition!.Value.X;
+                _currentSegment.Y2 = _currentMousePosition!.Value.Y;
+            }
+        }
+        else if (_drawStyle == DrawStyle.EditSegment && _currentSegment is not null)
+        {
+            _currentMousePosition = e.GetPosition(this);
+
+            if (_editSegmentMode == EditSegmentMode.StartPoint)
+            {
+                _currentSegment.X1 = _currentMousePosition!.Value.X;
+                _currentSegment.Y1 = _currentMousePosition!.Value.Y;
+            }
+            else
+            {
+                _currentSegment.X2 = _currentMousePosition!.Value.X;
+                _currentSegment.Y2 = _currentMousePosition!.Value.Y;
+            }
+        }      
     }
 
     private void MainCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -98,7 +132,7 @@ public partial class MainWindow : Window
                 AddPointAndMakeVisible();
                 break;
             case DrawStyle.BrokenLine:
-                HandleSegmentCreation(); //Becase basically broken line consists of multiple segments.
+                HandleSegmentCreation(); //Becase broken line basically consists of multiple segments.
                 break;
             case DrawStyle.Segment:
                 HandleSegmentCreation();
@@ -124,6 +158,43 @@ public partial class MainWindow : Window
         }
     }
 
+    private void MainCanvas_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (_currentSegment is not null)
+        {
+            if (_drawStyle == DrawStyle.BrokenLine || _drawStyle == DrawStyle.Segment)
+            {
+                mainCanvas.Children.Remove(_currentSegment);
+                _currentSegment = null;
+                _newSegmentStartPoint = null;
+            }
+            else if (_drawStyle == DrawStyle.EditSegment)
+            {
+                if (_editSegmentMode == EditSegmentMode.StartPoint)
+                {
+                    _currentSegment.X1 = _oldSegmentPoint!.Value.X;
+                    _currentSegment.Y1 = _oldSegmentPoint!.Value.Y;                   
+                }
+                else
+                {
+                    _currentSegment.X2 = _oldSegmentPoint!.Value.X;
+                    _currentSegment.Y2 = _oldSegmentPoint!.Value.Y;
+                }
+                AddSegmentPointEffect(_oldSegmentPoint!.Value);
+
+                _currentSegment = null;
+                _oldSegmentPoint = null;
+                _editSegmentMode = null;
+            }
+        }              
+    }
+
+    // !!! TOOLBAR EVENTS !!! //
+    private void ToolBar_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        _currentMousePosition = null;
+    }
+
     // !!! MENU EVENTS !!! //
     private void Menu_GotFocus(object sender, RoutedEventArgs e)
     {
@@ -138,100 +209,164 @@ public partial class MainWindow : Window
     // !!! CHANGE DRAW STYLE EVENTS !!! //
     private void DrawFreestyleButton_Click(object sender, RoutedEventArgs e)
     {
+        if (_currentSegment is not null)
+        {
+            RaiseMouseRightButtonDownEvent();
+        }
+
         _drawStyle = DrawStyle.Freestyle;
 
         _newSegmentStartPoint = null;
         RemoveSegmentPointsEffect();
-        _selectedSegmentToEdit = null;
+        _currentSegment = null;
         _editSegmentMode = null;
     }
 
     private void DrawPointsButton_Click(object sender, RoutedEventArgs e)
     {
+        if (_currentSegment is not null)
+        {
+            RaiseMouseRightButtonDownEvent();
+        }
+
         _drawStyle = DrawStyle.Point;
 
         _newSegmentStartPoint = null;
         RemoveSegmentPointsEffect();
-        _selectedSegmentToEdit = null;
+        _currentSegment = null;
         _editSegmentMode = null;
     }
 
     private void DrawBrokenLine_Click(object sender, RoutedEventArgs e)
     {
+        if (_currentSegment is not null)
+        {
+            RaiseMouseRightButtonDownEvent();
+        }
+
         _drawStyle = DrawStyle.BrokenLine;
 
         _newSegmentStartPoint = null;
         RemoveSegmentPointsEffect();
-        _selectedSegmentToEdit = null;
+        _currentSegment = null;
         _editSegmentMode = null;
     }
 
     private void DrawSegmentMenuItem_Click(object sender, RoutedEventArgs e)
     {
+        if (_currentSegment is not null)
+        {
+            RaiseMouseRightButtonDownEvent();
+        }
+
         _drawStyle = DrawStyle.Segment;
 
         _newSegmentStartPoint = null;
         RemoveSegmentPointsEffect();
-        _selectedSegmentToEdit = null;
+        _currentSegment = null;
         _editSegmentMode = null;
     }
 
     private void EditSegmentMenuItem_Click(object sender, RoutedEventArgs e)
     {
-        _drawStyle = DrawStyle.EditSegment;
+        if (_currentSegment is not null)
+        {
+            RaiseMouseRightButtonDownEvent();
+        }
 
         _newSegmentStartPoint = null;
+        RemoveSegmentPointsEffect();
+        _currentSegment = null;
+        _editSegmentMode = null;
+
+        _drawStyle = DrawStyle.EditSegment;
+
         AddSegmentPointsEffect();
     }
 
     private void DrawRectangleMenuItem_Click(object sender, RoutedEventArgs e)
     {
+        if (_currentSegment is not null)
+        {
+            RaiseMouseRightButtonDownEvent();
+        }
+
         _drawStyle = DrawStyle.Rectangle;
 
         _newSegmentStartPoint = null;
         RemoveSegmentPointsEffect();
-        _selectedSegmentToEdit = null;
+        _currentSegment = null;
         _editSegmentMode = null;
     }
 
     private void DrawEllipseButton_Click(object sender, RoutedEventArgs e)
     {
+        if (_currentSegment is not null)
+        {
+            RaiseMouseRightButtonDownEvent();
+        }
+
         _drawStyle = DrawStyle.Ellipse;
 
         _newSegmentStartPoint = null;
         RemoveSegmentPointsEffect();
-        _selectedSegmentToEdit = null;
+        _currentSegment = null;
         _editSegmentMode = null;
     }
 
     private void DrawArrowButton_Click(object sender, RoutedEventArgs e)
     {
+        if (_currentSegment is not null)
+        {
+            RaiseMouseRightButtonDownEvent();
+        }
+
         _drawStyle = DrawStyle.Arrow;
 
         _newSegmentStartPoint = null;
         RemoveSegmentPointsEffect();
-        _selectedSegmentToEdit = null;
+        _currentSegment = null;
         _editSegmentMode = null;
     }
 
     private void DrawTreeButton_Click(object sender, RoutedEventArgs e)
     {
+        if (_currentSegment is not null)
+        {
+            RaiseMouseRightButtonDownEvent();
+        }
+
         _drawStyle = DrawStyle.Tree;
 
         _newSegmentStartPoint = null;
         RemoveSegmentPointsEffect();
-        _selectedSegmentToEdit = null;
+        _currentSegment = null;
         _editSegmentMode = null;
     }
 
     private void DrawPolygonMenuItem_Click(object sender, RoutedEventArgs e)
     {
+        if (_currentSegment is not null)
+        {
+            RaiseMouseRightButtonDownEvent();
+        }
+
         _drawStyle = DrawStyle.Polygon;
 
         _newSegmentStartPoint = null;
         RemoveSegmentPointsEffect();
-        _selectedSegmentToEdit = null;
+        _currentSegment = null;
         _editSegmentMode = null;
+    }
+
+    // !!! RAISE EVENT METHODS !!! //
+    private void RaiseMouseRightButtonDownEvent()
+    {
+        var mouseEventArgs = new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Right)
+        {
+            RoutedEvent = MouseRightButtonDownEvent
+        };
+        mainCanvas.RaiseEvent(mouseEventArgs);
     }
 
     // !!! NEW WINDOW EVENTS !!! //
@@ -331,55 +466,55 @@ public partial class MainWindow : Window
         {
             _newSegmentStartPoint = new Point(_currentMousePosition!.Value.X, _currentMousePosition!.Value.Y);
         }
-        else if (_currentMousePosition != _newSegmentStartPoint.Value)
+        else
         {
-            AddSegmentAndMakeVisible(out Line segment);
-
             if (_drawStyle == DrawStyle.Segment)
             {
-                _segments.Add(segment);
+                _segments.Add(_currentSegment!);
+
                 _newSegmentStartPoint = null;
             }
             else if (_drawStyle == DrawStyle.BrokenLine)
             {
                 _newSegmentStartPoint = _currentMousePosition;
             }
+
+            _currentSegment = null;
         }
     }
 
     private void HandleSegmentEdit()
     {
-        if (_selectedSegmentToEdit is null)
+        if (_currentSegment is null)
         {
             foreach (var segment in _segments)
             {
                 if (IsMouseDownOnSegmentPoint(segment.X1, segment.Y1))
                 {
-                    _selectedSegmentToEdit = segment;
+                    _currentSegment = segment;
+                    _oldSegmentPoint = new Point(segment.X1, segment.Y1);
                     _editSegmentMode = EditSegmentMode.StartPoint;
+
+                    RemoveRelatedSegmentPointEffect();
+                    break;
                 }
                 else if (IsMouseDownOnSegmentPoint(segment.X2, segment.Y2))
                 {
-                    _selectedSegmentToEdit = segment;
+                    _currentSegment = segment;
+                    _oldSegmentPoint = new Point(segment.X2, segment.Y2);
                     _editSegmentMode = EditSegmentMode.EndPoint;
+
+                    RemoveRelatedSegmentPointEffect();
+                    break;
                 }
             }
         }
         else
         {
-            if (_editSegmentMode == EditSegmentMode.StartPoint)
-            {
-                _selectedSegmentToEdit.X1 = _currentMousePosition!.Value.X;
-                _selectedSegmentToEdit.Y1 = _currentMousePosition!.Value.Y;
-            }
-            else
-            {
-                _selectedSegmentToEdit.X2 = _currentMousePosition!.Value.X;
-                _selectedSegmentToEdit.Y2 = _currentMousePosition!.Value.Y;
-            }
-            RefreshSegmentPointsEffect();
+            AddSegmentPointEffect(_currentMousePosition!.Value);
 
-            _selectedSegmentToEdit = null;
+            _currentSegment = null;
+            _oldSegmentPoint = null;
             _editSegmentMode = null;
         }
     }
@@ -392,46 +527,68 @@ public partial class MainWindow : Window
                && Math.Abs(segmentEndpointPositionY - _currentMousePosition!.Value.Y) <= errorMargin;
     }
 
-    private void AddSegmentPointsEffect()
+    private void RemoveRelatedSegmentPointEffect()
+    {
+        foreach (var segmentPoint in _segmentPointEffects)
+        {
+            var leftCoordinate = Canvas.GetLeft(segmentPoint);
+            var topCoordinate = Canvas.GetTop(segmentPoint);
+            var width = segmentPoint.Width;
+            var height = segmentPoint.Height;
+
+            if (IsMouseDownOnSegmentEditPoint(leftCoordinate, topCoordinate, width, height))
+            {
+                RemoveSegmentPointEffect(segmentPoint); //Removes the effect from canvas.
+                _segmentPointEffects.Remove(segmentPoint);
+                break;
+            }
+        }
+    }
+
+    private bool IsMouseDownOnSegmentEditPoint(double leftCoordinate, double topCoordinate, double width, double height)
+    {
+        return _currentMousePosition!.Value.X >= leftCoordinate && _currentMousePosition!.Value.X <= leftCoordinate + width
+               && _currentMousePosition!.Value.Y >= topCoordinate && _currentMousePosition!.Value.Y <= topCoordinate + height;
+    }
+
+    private void AddSegmentPointEffect(Point coordinates)
     {
         const double width = 8d;
         const double height = 8d;
         var brushColor = new SolidColorBrush(Color.FromRgb(255, 0, 0));
 
+        var ellipseEffect = DrawManager.DrawEllipse(width, height, brushColor, true);
+
+        Canvas.SetLeft(ellipseEffect, coordinates.X - ellipseEffect.Width / 2);
+        Canvas.SetTop(ellipseEffect, coordinates.Y - ellipseEffect.Height / 2);
+
+        mainCanvas.Children.Add(ellipseEffect);
+        _segmentPointEffects.Add(ellipseEffect);
+    }
+
+    private void RemoveSegmentPointEffect(System.Windows.Shapes.Ellipse segmentPoint)
+    {
+        mainCanvas.Children.Remove(segmentPoint);
+    }
+
+    private void AddSegmentPointsEffect()
+    {
         foreach (var segment in _segments)
         {
-            var startEllipse = DrawManager.DrawEllipse(width, height, brushColor, true);
-            var endEllipse = DrawManager.DrawEllipse(width, height, brushColor, true);
             var startPoint = new Point(segment.X1, segment.Y1);
+            AddSegmentPointEffect(startPoint);
+
             var endPoint = new Point(segment.X2, segment.Y2);
-
-            Canvas.SetLeft(startEllipse, startPoint.X - startEllipse.Width / 2);
-            Canvas.SetTop(startEllipse, startPoint.Y - startEllipse.Height / 2);
-            Canvas.SetLeft(endEllipse, endPoint.X - endEllipse.Height / 2);
-            Canvas.SetTop(endEllipse, endPoint.Y - endEllipse.Height / 2);
-
-            mainCanvas.Children.Add(startEllipse);
-            mainCanvas.Children.Add(endEllipse);
-
-            _editSegmentPoints.Add(startEllipse);
-            _editSegmentPoints.Add(endEllipse);
+            AddSegmentPointEffect(endPoint);
         }
     }
 
     private void RemoveSegmentPointsEffect()
     {
-        foreach (var segmentPoint in _editSegmentPoints)
+        foreach (var segmentPoint in _segmentPointEffects)
         {
-            mainCanvas.Children.Remove(segmentPoint);
+            RemoveSegmentPointEffect(segmentPoint);
         }
-        _editSegmentPoints.Clear();
+        _segmentPointEffects.Clear();
     }
-
-    private void RefreshSegmentPointsEffect()
-    {
-        RemoveSegmentPointsEffect();
-        AddSegmentPointsEffect();
-    }
-
-
 }
