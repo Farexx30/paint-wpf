@@ -9,18 +9,18 @@
     <Grid>
 
         <Canvas Name="mainCanvas" 
-                MouseLeftButtonDown="MainCanvas_MouseLeftButtonDown" MouseMove="MainCanvas_MouseMove">
+                MouseLeftButtonDown="MainCanvas_MouseLeftButtonDown" MouseMove="MainCanvas_MouseMove" MouseRightButtonDown="MainCanvas_MouseRightButtonDown">
             <Canvas.Background>
                 <SolidColorBrush Color="White" Opacity="1"/>
             </Canvas.Background>
         </Canvas>
         
         <ToolBarPanel>
-            <ToolBar VerticalAlignment="Top">
+            <ToolBar VerticalAlignment="Top" Background="LightGray" PreviewMouseLeftButtonDown="ToolBar_PreviewMouseLeftButtonDown">
                 <Button x:Name="drawFreestyleButton" Click="DrawFreestyleButton_Click">Rysuj dowolnie</Button>
                 <Button x:Name="drawPointsButton" Click="DrawPointsButton_Click">Rysuj punkty</Button>
                 <Button x:Name="drawBrokenLineButton" Click="DrawBrokenLine_Click">Rysuj linię łamaną</Button>
-                <Menu x:Name="menu" GotFocus="Menu_GotFocus" LostFocus="Menu_LostFocus">
+                <Menu x:Name="menu" Background="LightGray" GotFocus="Menu_GotFocus" LostFocus="Menu_LostFocus">
                     <MenuItem Header="Odcinki">
                         <MenuItem x:Name="drawSegmentMenuItem" Header="Rysuj odcinek" Click="DrawSegmentMenuItem_Click"/>
                         <MenuItem x:Name="editSegmentMenuItem" Header="Edytuj odcinek" Click="EditSegmentMenuItem_Click"/>
