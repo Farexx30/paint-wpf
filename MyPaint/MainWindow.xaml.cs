@@ -80,16 +80,16 @@ public partial class MainWindow : Window
             }
 
             var brushColor = DrawManager.GlobalProperties.BrushColor;
-            var line = DrawManager.DrawLine(_currentMousePosition!.Value, e.GetPosition(this), brushColor);
+            var line = DrawManager.DrawLine(_currentMousePosition!.Value, e.GetPosition(mainCanvas), brushColor);
 
-            _currentMousePosition = e.GetPosition(this);
+            _currentMousePosition = e.GetPosition(mainCanvas);
 
             mainCanvas.Children.Add(line);
         }
         else if ((_drawStyle == DrawStyle.Segment || _drawStyle == DrawStyle.BrokenLine) 
                 && _newSegmentStartPoint is not null)
         {
-            _currentMousePosition = e.GetPosition(this);
+            _currentMousePosition = e.GetPosition(mainCanvas);
 
             if (_currentSegment is null)
             {
@@ -104,7 +104,7 @@ public partial class MainWindow : Window
         }
         else if (_drawStyle == DrawStyle.EditSegment && _currentSegment is not null)
         {
-            _currentMousePosition = e.GetPosition(this);
+            _currentMousePosition = e.GetPosition(mainCanvas);
 
             if (_editSegmentMode == EditSegmentMode.StartPoint)
             {
@@ -121,7 +121,7 @@ public partial class MainWindow : Window
 
     private void MainCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
-        _currentMousePosition = e.GetPosition(this);
+        _currentMousePosition = e.GetPosition(mainCanvas);
 
         switch (_drawStyle)
         {
@@ -617,7 +617,16 @@ public partial class MainWindow : Window
         }
         else
         {
-            AddSegmentPointEffect(_currentMousePosition!.Value);
+            if (_editSegmentMode == EditSegmentMode.StartPoint)
+            {
+                var newPointEffect = new Point(_currentSegment.X1, _currentSegment.Y1);
+                AddSegmentPointEffect(newPointEffect);
+            }
+            else
+            {
+                var newPointEffect = new Point(_currentSegment.X2, _currentSegment.Y2);
+                AddSegmentPointEffect(newPointEffect);
+            }
 
             _currentSegment = null;
             _oldSegmentPoint = null;

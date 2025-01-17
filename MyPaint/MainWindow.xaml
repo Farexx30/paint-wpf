@@ -8,44 +8,61 @@
         Title="MainWindow" Height="450" Width="800"
         Closing="MainWindow_Closing">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-        <Canvas Name="mainCanvas" 
-                MouseLeftButtonDown="MainCanvas_MouseLeftButtonDown" MouseMove="MainCanvas_MouseMove" MouseRightButtonDown="MainCanvas_MouseRightButtonDown">
-            <Canvas.Background>
-                <SolidColorBrush Color="White" Opacity="1"/>
-            </Canvas.Background>
-        </Canvas>
-        
-        <ToolBarPanel>
-            <ToolBar VerticalAlignment="Top" Background="LightGray" PreviewMouseLeftButtonDown="ToolBar_PreviewMouseLeftButtonDown">
+        <ToolBarPanel Grid.Row="0">
+            <ToolBar VerticalAlignment="Top" Background="LightGray" 
+                     PreviewMouseLeftButtonDown="ToolBar_PreviewMouseLeftButtonDown">
                 <Menu Background="LightGray">
                     <MenuItem Header="Plik">
-                        <MenuItem x:Name="saveToFileButton" Header="Zapisz jako..." Click="SaveToFileButton_Click"/>
-                        <MenuItem x:Name="loadFromFileButton" Header="Wczytaj..." Click="LoadFromFileButton_Click"/>
+                        <MenuItem x:Name="saveToFileButton" Header="Zapisz jako..." 
+                                  Click="SaveToFileButton_Click"/>
+                        <MenuItem x:Name="loadFromFileButton" Header="Wczytaj..." 
+                                  Click="LoadFromFileButton_Click"/>
                     </MenuItem>
                 </Menu>
-                
-                <Button x:Name="drawFreestyleButton" Click="DrawFreestyleButton_Click">Rysuj dowolnie</Button>
-                <Button x:Name="drawPointsButton" Click="DrawPointsButton_Click">Rysuj punkty</Button>
-                <Button x:Name="drawBrokenLineButton" Click="DrawBrokenLine_Click">Rysuj linię łamaną</Button>
-                <Menu x:Name="menu" Background="LightGray" GotFocus="Menu_GotFocus" LostFocus="Menu_LostFocus">
+                <Button x:Name="drawFreestyleButton" 
+                        Click="DrawFreestyleButton_Click">Rysuj dowolnie</Button>
+                <Button x:Name="drawPointsButton" 
+                        Click="DrawPointsButton_Click">Rysuj punkty</Button>
+                <Button x:Name="drawBrokenLineButton" 
+                        Click="DrawBrokenLine_Click">Rysuj linię łamaną</Button>
+                <Menu x:Name="menu" Background="LightGray" 
+                      GotFocus="Menu_GotFocus" LostFocus="Menu_LostFocus">
                     <MenuItem Header="Odcinki">
-                        <MenuItem x:Name="drawSegmentMenuItem" Header="Rysuj odcinek" Click="DrawSegmentMenuItem_Click"/>
-                        <MenuItem x:Name="editSegmentMenuItem" Header="Edytuj odcinek" Click="EditSegmentMenuItem_Click"/>
+                        <MenuItem x:Name="drawSegmentMenuItem" Header="Rysuj odcinek" 
+                                  Click="DrawSegmentMenuItem_Click"/>
+                        <MenuItem x:Name="editSegmentMenuItem" Header="Edytuj odcinek" 
+                                  Click="EditSegmentMenuItem_Click"/>
                     </MenuItem>
                     <MenuItem Header="Kształty">
-                        <MenuItem x:Name="drawRectangleMenuItem" Header="Rysuj prostokąt" Click="DrawRectangleMenuItem_Click"/>
-                        <MenuItem x:Name="drawEllipseButton" Header="Rysuj elipsę" Click="DrawEllipseButton_Click"/>
-                        <MenuItem x:Name="drawArrowButton" Header="Rysuj strzałkę" Click="DrawArrowButton_Click"/>
-                        <MenuItem x:Name="drawTreeButton" Header="Rysuj drzewo" Click="DrawTreeButton_Click"/>
-                        <MenuItem x:Name="drawPolygonMenuItem" Header="Rysuj wielokąt foremny" Click="DrawPolygonMenuItem_Click"/>
+                        <MenuItem x:Name="drawRectangleMenuItem" Header="Rysuj prostokąt" 
+                                  Click="DrawRectangleMenuItem_Click"/>
+                        <MenuItem x:Name="drawEllipseButton" Header="Rysuj elipsę" 
+                                  Click="DrawEllipseButton_Click"/>
+                        <MenuItem x:Name="drawArrowButton" Header="Rysuj strzałkę" 
+                                  Click="DrawArrowButton_Click"/>
+                        <MenuItem x:Name="drawTreeButton" Header="Rysuj drzewo" 
+                                  Click="DrawTreeButton_Click"/>
+                        <MenuItem x:Name="drawPolygonMenuItem" Header="Rysuj wielokąt foremny" 
+                                  Click="DrawPolygonMenuItem_Click"/>
                     </MenuItem>
-
                 </Menu>
-                <Rectangle x:Name="colorPickerRectangle" Height="20" Width="20" Margin="2" Fill="Black" MouseLeftButtonDown="ColorPickerRectangle_MouseLeftButtonDown">
-
+                <Rectangle x:Name="colorPickerRectangle" Height="20" Width="20" 
+                           Margin="2" Fill="Black" 
+                           MouseLeftButtonDown="ColorPickerRectangle_MouseLeftButtonDown">
                 </Rectangle>
             </ToolBar>
         </ToolBarPanel>
+
+        <Canvas Name="mainCanvas" Grid.Row="1" 
+                MouseLeftButtonDown="MainCanvas_MouseLeftButtonDown"
+                MouseMove="MainCanvas_MouseMove" 
+                MouseRightButtonDown="MainCanvas_MouseRightButtonDown"
+                Background="White">
+        </Canvas>
     </Grid>
 </Window>
