@@ -40,11 +40,11 @@ public partial class ColorPickerWindow : Window, INotifyPropertyChanged
     private bool _isInitializing = true;
     private readonly MainWindow _parentWindow;
     private Color _currentColor = DrawManager.GlobalProperties.BrushColor.Color;
-    private InputColorSpace _currentInputColorSpace = InputColorSpace.Rgb;
+    private InputColorSpace _currentInputColorSpace;
     private const string _hValueTextBoxName = "hValueTextBox";
     private const string _sValueTextBoxName = "sValueTextBox";
     private const string _vValueTextBoxName = "vValueTextBox";
-    private const double _hMaxValue = 360d;
+    private const double _hMaxValue = 360d; //Actually the _hMaxValue is < 360d but i covered it in validation logic.
     private const double _sMaxValue = 100d;
     private const double _vMaxValue = 100d;
 
@@ -195,8 +195,6 @@ public partial class ColorPickerWindow : Window, INotifyPropertyChanged
         {
             e.Handled = true;
         }
-
-        _currentInputColorSpace = InputColorSpace.Rgb;
     }
 
     private void HsvValueTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -209,9 +207,9 @@ public partial class ColorPickerWindow : Window, INotifyPropertyChanged
         if (textBoxName == _hValueTextBoxName)
         {
             if (!double.TryParse(newText, out var result) 
-                || result > _hMaxValue 
+                || result >= _hMaxValue 
                 || result < 0
-                || !char.IsDigit(newChar))
+                || (!char.IsDigit(newChar) && newChar != ','))
             {
                 e.Handled = true;
             }
@@ -221,7 +219,7 @@ public partial class ColorPickerWindow : Window, INotifyPropertyChanged
             if (!double.TryParse(newText, out var result) 
                 || result > _sMaxValue 
                 || result < 0
-                || !char.IsDigit(newChar))
+                || (!char.IsDigit(newChar) && newChar != ','))
             {
                 e.Handled = true;
             }
@@ -231,12 +229,21 @@ public partial class ColorPickerWindow : Window, INotifyPropertyChanged
             if (!double.TryParse(newText, out var result) 
                 || result > _vMaxValue 
                 || result < 0
-                || !char.IsDigit(newChar))
+                || (!char.IsDigit(newChar) && newChar != ','))
             {
                 e.Handled = true;
             }
         }
+    }
 
+    // !!! GOT FOCUS EVENTS !!! //
+    private void RgbTextBox_GotFocus(object sender, RoutedEventArgs e)
+    {
+        _currentInputColorSpace = InputColorSpace.Rgb;
+    }
+
+    private void HsvTextBox_GotFocus(object sender, RoutedEventArgs e)
+    {
         _currentInputColorSpace = InputColorSpace.Hsv;
     }
 
@@ -298,10 +305,10 @@ public partial class ColorPickerWindow : Window, INotifyPropertyChanged
         //Calculate S:
         double newS = mMax == 0d
             ? 0d
-            : delta / mMax * 100d; //* 100 because the value shown is in %.
+            : delta / mMax * 100d; //* 100 because the displayed is in %.
 
         //Calculate V:
-        double newV = mMax * 100d; //* 100 because the value shown is in %.
+        double newV = mMax * 100d; //* 100 because the displayed value is in %.
 
         //Update H,S and V:
         H = Math.Round(newH, 3).ToString();
@@ -314,11 +321,67 @@ public partial class ColorPickerWindow : Window, INotifyPropertyChanged
 
     private void CalculateAndUpdateRgbValues() //This method also updates the ColorRectangle Fill in seperate method.
     {
-        //TODO: HSV -> RGB
+        //We are going to use these variables in conversion:
+        _ = double.TryParse(H, out var hResult);
+        _ = double.TryParse(S, out var sResult);
+        sResult /= 100; //Because the displayed value is in %.
+        _ = double.TryParse(V, out var vResult);
+        vResult /= 100; //Because the displayed value is in %.
+        var c = vResult * sResult;
+        var x = c * (1 - Math.Abs(hResult / 60d % 2d - 1d));
+        var m = vResult - c;
+
+        //Calculate the R', G' and B'
+        double rPrim = 0d, gPrim = 0d, bPrim = 0d;
+        if (hResult >= 0d && hResult < 60)
+        {
+            rPrim = c;
+            gPrim = x;
+            bPrim = 0d; //Basically no need to update, but I left it for readability and consistency.
+        }
+        else if (hResult >= 60d && hResult < 120d)
+        {
+            rPrim = x;
+            gPrim = c;
+            bPrim = 0d;
+        }
+        else if (hResult >= 120d && hResult < 180d)
+        {
+            rPrim = 0d;
+            gPrim = c;
+            bPrim = x;
+        }
+        else if (hResult >= 180d && hResult < 240d)
+        {
+            rPrim = 0d;
+            gPrim = x;
+            bPrim = c;
+        }
+        else if (hResult >= 240d && hResult < 300d)
+        {
+            rPrim = x;
+            gPrim = 0d;
+            bPrim = c;
+        }
+        else if (hResult >= 300d && hResult < 360d)
+        {
+            rPrim = c;
+            gPrim = 0d;
+            bPrim = x;
+        }
+
+        //Update R, G and B:
+        R = (Math.Round((rPrim + m) * 255d)).ToString();
+        G = (Math.Round((gPrim + m) * 255d)).ToString();
+        B = (Math.Round((bPrim + m) * 255d)).ToString();
+
+        //Update color:
+        UpdateColor();
     }
 
     private void UpdateColor()
     {
+
         _ = byte.TryParse(R, out var rResult);
         _ = byte.TryParse(G, out var gResult);
         _ = byte.TryParse(B, out var bResult);
