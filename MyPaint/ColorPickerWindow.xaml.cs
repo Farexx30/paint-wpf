@@ -29,6 +29,7 @@ namespace MyPaint
         }
 
         // !!! PRIVATE FIELDS !!! //
+        private Color _currentColor = DrawManager.GlobalProperties.BrushColor.Color;
         private const string _hValueTextBoxName = "hValueTextBox";
         private const string _sValueTextBoxName = "sValueTextBox";
         private const string _vValueTextBoxName = "vValueTextBox";
@@ -183,6 +184,18 @@ namespace MyPaint
             }
         }
 
+        // !!! BUTTON CLICK EVENTS !!! //
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            DrawManager.GlobalProperties.BrushColor = new SolidColorBrush(_currentColor);
+            Close();
+        }
+
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
 
         // !!! CONVERT METHODS !!! //
         private void CalculateAndUpdateHsvValues()
@@ -242,7 +255,6 @@ namespace MyPaint
             //TODO: HSV -> RGB
         }
 
-
         private void UpdateColor()
         {
             //We are going to use these variables in conversion:
@@ -250,9 +262,8 @@ namespace MyPaint
             _ = byte.TryParse(G, out var gResult);
             _ = byte.TryParse(B, out var bResult);
 
-            var newColor = new SolidColorBrush(Color.FromRgb(rResult, gResult, bResult));
-            selectedColorRectangle.Fill = newColor;
-            DrawManager.GlobalProperties.BrushColor = newColor;
+            _currentColor = Color.FromRgb(rResult, gResult, bResult);
+            selectedColorRectangle.Fill = new SolidColorBrush(_currentColor);
         }
     }
 }

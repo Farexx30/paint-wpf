@@ -44,7 +44,7 @@
         <Rectangle x:Name="selectedColorRectangle" Width="95" Height="95" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="Black" />
 
 
-        <Button Name="saveButton" Content="Zapisz" Width="80" Grid.Row="2" HorizontalAlignment="Left" Grid.Column="0" Margin="10,5,0,5"/>
-        <Button Name="cancelButton" Content="Anuluj" Width="80" HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0" Margin="0,5,10,5" />
+        <Button Name="saveButton" Content="Zapisz" Width="80" Grid.Row="2" HorizontalAlignment="Left" Grid.Column="0" Margin="10,5,0,5" Click="SaveButton_Click" />
+        <Button Name="cancelButton" Content="Anuluj" Width="80" HorizontalAlignment="Right" Grid.Row="2" Grid.Column="0" Margin="0,5,10,5" Click="CancelButton_Click"/>
     </Grid>
 </Window>
