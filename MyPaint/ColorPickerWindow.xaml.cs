@@ -32,9 +32,9 @@ namespace MyPaint
         private const string _hValueTextBoxName = "hValueTextBox";
         private const string _sValueTextBoxName = "sValueTextBox";
         private const string _vValueTextBoxName = "vValueTextBox";
-        private const uint _hMaxValue = 360u;
-        private const uint _sMaxValue = 100u;
-        private const uint _vMaxValue = 100u;
+        private const double _hMaxValue = 360d;
+        private const double _sMaxValue = 100d;
+        private const double _vMaxValue = 100d;
 
         // !!! BINDINGS !!! //
         private string _r = string.Empty;
@@ -48,7 +48,7 @@ namespace MyPaint
                     _r = value;
                     OnPropertyChanged();
 
-                    UpdateHsvValues();
+                    CalculateAndUpdateHsvValues();
                 }
             }
         }
@@ -64,7 +64,7 @@ namespace MyPaint
                     _g = value;
                     OnPropertyChanged();
 
-                    UpdateHsvValues();
+                    CalculateAndUpdateHsvValues();
                 }
             }
         }
@@ -80,7 +80,7 @@ namespace MyPaint
                     _b = value;
                     OnPropertyChanged();
 
-                    UpdateHsvValues();
+                    CalculateAndUpdateHsvValues();
                 }
             }
         }
@@ -96,7 +96,7 @@ namespace MyPaint
                     _h = value;
                     OnPropertyChanged();
 
-                    UpdateRgbValues();
+                    CalculateAndUpdateRgbValues();
                 }
             }
         }
@@ -112,7 +112,7 @@ namespace MyPaint
                     _s = value;
                     OnPropertyChanged();
 
-                    UpdateRgbValues();
+                    CalculateAndUpdateRgbValues();
                 }
             }
         }
@@ -128,10 +128,11 @@ namespace MyPaint
                     _v = value;
                     OnPropertyChanged();
 
-                    UpdateRgbValues();
+                    CalculateAndUpdateRgbValues();
                 }
             }
         }
+
 
         // !!! CONSTRUCTORS !!! //
         public ColorPickerWindow()
@@ -161,21 +162,21 @@ namespace MyPaint
 
             if (textBoxName == _hValueTextBoxName)
             {
-                if (!uint.TryParse(newText, out var result) || result > _hMaxValue)
+                if (!double.TryParse(newText, out var result) || result > _hMaxValue)
                 {
                     e.Handled = true;
                 }
             }
             else if (textBoxName == _sValueTextBoxName)
             {
-                if (!uint.TryParse(newText, out var result) || result > _sMaxValue)
+                if (!double.TryParse(newText, out var result) || result > _sMaxValue)
                 {
                     e.Handled = true;
                 }
             }
             else if (textBoxName == _vValueTextBoxName)
             {
-                if (!uint.TryParse(newText, out var result) || result > _vMaxValue)
+                if (!double.TryParse(newText, out var result) || result > _vMaxValue)
                 {
                     e.Handled = true;
                 }
@@ -184,14 +185,74 @@ namespace MyPaint
 
 
         // !!! CONVERT METHODS !!! //
-        private void UpdateHsvValues()
+        private void CalculateAndUpdateHsvValues()
         {
-            //TODO: RGB -> HSV
+            //We are going to use these variables in conversion:
+            _ = byte.TryParse(R, out var rResult); //If parsing will fail, the rResult will be equal to 0 (default value).
+            double rPrim = rResult / 255d;
+
+            _ = byte.TryParse(G, out var gResult); //If parsing will fail, the gResult will be equal to 0 (default value).
+            double gPrim = gResult / 255d;
+
+            _ = byte.TryParse(B, out var bResult); //If parsing will fail, the bResult will be equal to 0 (default value).
+            double bPrim = bResult / 255d;
+
+            double mMax = Math.Max(rPrim, Math.Max(gPrim, bPrim));
+            double mMin = Math.Min(rPrim, Math.Min(gPrim, bPrim));
+            double delta = mMax - mMin;
+
+            //Calculate H:
+            double newH = 0d;
+            if (delta == 0d)
+            {
+                //newH = 0d; well, no need to update, but kept the if statement for readability.
+            }
+            else if (mMax == rPrim)
+            {
+                newH = 60 * ((gPrim - bPrim) / delta % 6d);
+            }
+            else if (mMax == gPrim)
+            {
+                newH = 60 * ((bPrim - rPrim) / delta + 2d);
+            }
+            else if (mMax == bPrim)
+            {
+                newH = 60 * ((rPrim - gPrim) / delta + 4d);
+            }
+
+            //Calculate S:
+            double newS = mMax == 0d
+                ? 0d
+                : delta / mMax * 100d;
+
+            //Calculate V:
+            double newV = mMax * 100d;
+
+            //Update H,S and V:
+            H = Math.Round(newH, 3).ToString();
+            S = Math.Round(newS, 3).ToString();
+            V = Math.Round(newV, 3).ToString();
+
+            //Update the selected color rectangle:
+            UpdateColor();
         }
 
-        private void UpdateRgbValues()
+        private void CalculateAndUpdateRgbValues()
         {
             //TODO: HSV -> RGB
+        }
+
+
+        private void UpdateColor()
+        {
+            //We are going to use these variables in conversion:
+            _ = byte.TryParse(R, out var rResult);
+            _ = byte.TryParse(G, out var gResult);
+            _ = byte.TryParse(B, out var bResult);
+
+            var newColor = new SolidColorBrush(Color.FromRgb(rResult, gResult, bResult));
+            selectedColorRectangle.Fill = newColor;
+            DrawManager.GlobalProperties.BrushColor = newColor;
         }
     }
 }

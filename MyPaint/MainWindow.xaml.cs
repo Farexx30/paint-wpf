@@ -43,7 +43,6 @@ public partial class MainWindow : Window
 {
     private DrawStyle _drawStyle = DrawStyle.Freestyle;
     private Point? _currentMousePosition;
-    private Color _currentColor = Color.FromRgb(0, 0, 0); //Black color by default
 
     // !! SEGMENT AND BROKE LINE FIELDS !!! //
     private Line? _currentSegment;
@@ -82,7 +81,7 @@ public partial class MainWindow : Window
                 return;
             }
 
-            var brushColor = new SolidColorBrush(_currentColor);
+            var brushColor = DrawManager.GlobalProperties.BrushColor;
             var line = DrawManager.DrawLine(_currentMousePosition!.Value, e.GetPosition(this), brushColor);
 
             _currentMousePosition = e.GetPosition(this);
@@ -389,7 +388,7 @@ public partial class MainWindow : Window
     {
         var width = DrawManager.EllipseProperties.Width;
         var height = DrawManager.EllipseProperties.Height;
-        var brushColor = DrawManager.EllipseProperties.BrushColor;
+        var brushColor = DrawManager.GlobalProperties.BrushColor;
         var ellipse = DrawManager.DrawEllipse(width, height, brushColor, true);
 
         Canvas.SetLeft(ellipse, _currentMousePosition!.Value.X - ellipse.Width / 2);
@@ -400,7 +399,7 @@ public partial class MainWindow : Window
 
     private void AddSegmentAndMakeVisible(out Line segment)
     {
-        var brushColor = DrawManager.LineProperties.BrushColor;
+        var brushColor = DrawManager.GlobalProperties.BrushColor;
         segment = DrawManager.DrawLine(_newSegmentStartPoint!.Value, _currentMousePosition!.Value, brushColor);
 
         mainCanvas.Children.Add(segment);
@@ -410,7 +409,7 @@ public partial class MainWindow : Window
     {
         var width = DrawManager.RectangleProperties.Width;
         var height = DrawManager.RectangleProperties.Height;
-        var brushColor = DrawManager.RectangleProperties.BrushColor;
+        var brushColor = DrawManager.GlobalProperties.BrushColor;
         var rectangle = DrawManager.DrawRectangle(width, height, brushColor);
 
         Canvas.SetLeft(rectangle, _currentMousePosition!.Value.X - rectangle.Width / 2);
@@ -423,7 +422,7 @@ public partial class MainWindow : Window
     {
         var width = DrawManager.EllipseProperties.Width;
         var height = DrawManager.EllipseProperties.Height;
-        var brushColor = DrawManager.EllipseProperties.BrushColor;
+        var brushColor = DrawManager.GlobalProperties.BrushColor;
         var ellipse = DrawManager.DrawEllipse(width, height, brushColor);
 
         Canvas.SetLeft(ellipse, _currentMousePosition!.Value.X - ellipse.Width / 2);
@@ -435,7 +434,7 @@ public partial class MainWindow : Window
     private void AddArrowAndMakeVisible()
     {
         var size = DrawManager.ArrowProperties.Size;
-        var brushColor = DrawManager.ArrowProperties.BrushColor;
+        var brushColor = DrawManager.GlobalProperties.BrushColor;
         var arrow = DrawManager.DrawArrow(_currentMousePosition!.Value, size, brushColor);
 
         mainCanvas.Children.Add(arrow);
@@ -444,7 +443,7 @@ public partial class MainWindow : Window
     private void AddTreeAndMakeVisible()
     {
         var size = DrawManager.TreeProperties.Size;
-        var brushColor = DrawManager.TreeProperties.BrushColor;
+        var brushColor = DrawManager.GlobalProperties.BrushColor;
         var tree = DrawManager.DrawTree(_currentMousePosition!.Value, size, brushColor);
 
         mainCanvas.Children.Add(tree);
@@ -453,7 +452,7 @@ public partial class MainWindow : Window
     private void AddPolygonAndMakeVisible()
     {
         var size = DrawManager.PolygonProperties.Size;
-        var brushColor = DrawManager.PolygonProperties.BrushColor;
+        var brushColor = DrawManager.GlobalProperties.BrushColor;
         var polygon = DrawManager.DrawRegularPolygon(_currentMousePosition!.Value, size, 8u, brushColor);
 
         mainCanvas.Children.Add(polygon);
