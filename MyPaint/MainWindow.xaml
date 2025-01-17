@@ -18,6 +18,13 @@
         
         <ToolBarPanel>
             <ToolBar VerticalAlignment="Top" Background="LightGray" PreviewMouseLeftButtonDown="ToolBar_PreviewMouseLeftButtonDown">
+                <Menu Background="LightGray">
+                    <MenuItem Header="Plik">
+                        <MenuItem x:Name="saveToFileButton" Header="Zapisz jako..." Click="SaveToFileButton_Click"/>
+                        <MenuItem x:Name="loadFromFileButton" Header="Wczytaj..." Click="LoadFromFileButton_Click"/>
+                    </MenuItem>
+                </Menu>
+                
                 <Button x:Name="drawFreestyleButton" Click="DrawFreestyleButton_Click">Rysuj dowolnie</Button>
                 <Button x:Name="drawPointsButton" Click="DrawPointsButton_Click">Rysuj punkty</Button>
                 <Button x:Name="drawBrokenLineButton" Click="DrawBrokenLine_Click">Rysuj linię łamaną</Button>
