@@ -10,6 +10,19 @@ using System.Windows.Input;
 using System.Reflection;
 
 namespace MyPaint;
+internal enum DrawStyle
+{
+    Freestyle,
+    Point,
+    Rectangle,
+    Ellipse,
+    Arrow,
+    Tree,
+    Polygon,
+    BrokenLine,
+    Segment,
+    EditSegment,
+}
 
 internal static class DrawManager
 {

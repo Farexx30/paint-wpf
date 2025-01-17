@@ -1,4 +1,5 @@
 ﻿using Emgu.CV.Structure;
+using Microsoft.Win32;
 using System.ComponentModel;
 using System.Text;
 using System.Windows;
@@ -20,24 +21,10 @@ namespace MyPaint;
 /// </summary>
 /// 
 
-enum EditSegmentMode
+internal enum EditSegmentMode
 {
     StartPoint,
     EndPoint,
-}
-
-enum DrawStyle
-{
-    Freestyle,
-    Point,
-    Rectangle,
-    Ellipse,
-    Arrow,
-    Tree,
-    Polygon,
-    BrokenLine,
-    Segment,
-    EditSegment,
 }
 
 public partial class MainWindow : Window
@@ -214,6 +201,40 @@ public partial class MainWindow : Window
     private void Menu_LostFocus(object sender, RoutedEventArgs e)
     {
         _isMenuFocused = false;
+    }
+
+    // !!! SAVE AND LOAD FILE EVENTS !!! //
+    private void SaveToFileButton_Click(object sender, RoutedEventArgs e)
+    {
+        var saveFileDialog = new SaveFileDialog
+        {
+            Title = "Save an image file",
+            Filter = "Image file (*.png)|*.png|Image file (*.jpeg)|*.jpeg",
+        };
+
+        if (saveFileDialog.ShowDialog() == true)
+        {
+            var path = new Uri(saveFileDialog.FileName);
+            var fileExtension = System.IO.Path.GetExtension(saveFileDialog.FileName);
+
+            if (path is not null)
+            {
+                switch (fileExtension)
+                {
+                    case ".png":
+                        FileManager.SaveToFile(path, mainCanvas, FileExtension.Png);
+                        break;
+                    case ".jpeg":
+                        FileManager.SaveToFile(path, mainCanvas, FileExtension.Jpeg);
+                        break;
+                }
+            }
+        }
+    }
+
+    private void LoadFromFileButton_Click(object sender, RoutedEventArgs e)
+    {
+
     }
 
     // !!! CHANGE DRAW STYLE EVENTS !!! //
