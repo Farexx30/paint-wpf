@@ -48,6 +48,26 @@ internal static class FileManager
         canvas.LayoutTransform = transform;
     }
 
+    internal static Image? LoadFromFile(Uri path, FileExtension fileExtension = FileExtension.Png)
+    {
+        var bitmapImage = new BitmapImage();
+        using (var fileStream = new FileStream(path.LocalPath, FileMode.Open, FileAccess.Read))
+        {
+            bitmapImage.BeginInit();
+            bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+            bitmapImage.StreamSource = fileStream;
+            bitmapImage.EndInit();
+        }
+
+        var image = new Image
+        {
+            Source = bitmapImage,
+            Stretch = Stretch.None
+        };
+
+        return image;
+    }
+
     private static BitmapEncoder GetBitmapEncoder(FileExtension fileExtension)
     {
         BitmapEncoder? bitmapEncoder = null;

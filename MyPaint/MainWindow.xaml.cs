@@ -206,10 +206,15 @@ public partial class MainWindow : Window
     // !!! SAVE AND LOAD FILE EVENTS !!! //
     private void SaveToFileButton_Click(object sender, RoutedEventArgs e)
     {
+        if (_currentSegment is not null)
+        {
+            RaiseMouseRightButtonDownEvent();
+        }
+
         var saveFileDialog = new SaveFileDialog
         {
             Title = "Save an image file",
-            Filter = "Image file (*.png)|*.png|Image file (*.jpeg)|*.jpeg",
+            Filter = "Image file (*.png)|*.png|Image file (*.jpeg)|*.jpeg"
         };
 
         if (saveFileDialog.ShowDialog() == true)
@@ -219,13 +224,22 @@ public partial class MainWindow : Window
 
             if (path is not null)
             {
+                var pngExtension = $".{nameof(FileExtension.Png)}";
+                var jpegExtension = $".{nameof(FileExtension.Jpeg)}";
+
                 switch (fileExtension)
                 {
-                    case ".png":
+                    case var extension when extension.Equals(pngExtension, StringComparison.OrdinalIgnoreCase):
                         FileManager.SaveToFile(path, mainCanvas, FileExtension.Png);
                         break;
-                    case ".jpeg":
+                    case var extension when extension.Equals(jpegExtension, StringComparison.OrdinalIgnoreCase):
                         FileManager.SaveToFile(path, mainCanvas, FileExtension.Jpeg);
+                        break;
+                    default:
+                        MessageBox.Show("Nieobsługiwany format pliku",
+                            "Wystąpił błąd przy zapisie!",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error);
                         break;
                 }
             }
@@ -234,8 +248,44 @@ public partial class MainWindow : Window
 
     private void LoadFromFileButton_Click(object sender, RoutedEventArgs e)
     {
+        if (_currentSegment is not null)
+        {
+            RaiseMouseRightButtonDownEvent();
+        }
 
+        var openFileDialog = new OpenFileDialog
+        {
+            Title = "Load an image file",
+            Filter = "Image file (*.png)|*.png|Image file (*.jpeg)|*.jpeg"
+        };
+
+        if (openFileDialog.ShowDialog() == true)
+        {
+            var path = new Uri(openFileDialog.FileName);
+            var fileExtension = System.IO.Path.GetExtension(openFileDialog.FileName);
+
+            if (path is not null)
+            {
+                var pngExtension = $".{nameof(FileExtension.Png)}";
+                var jpegExtension = $".{nameof(FileExtension.Jpeg)}";
+
+                Image? image = fileExtension switch
+                {
+                    var extension when extension.Equals(pngExtension, StringComparison.OrdinalIgnoreCase) 
+                        => FileManager.LoadFromFile(path, FileExtension.Png),
+
+                    var extension when extension.Equals(jpegExtension, StringComparison.OrdinalIgnoreCase)
+                        => FileManager.LoadFromFile(path, FileExtension.Jpeg),
+
+                    _ => null
+                };
+
+                HandleResultImage(image);
+            }
+        }
     }
+
+   
 
     // !!! CHANGE DRAW STYLE EVENTS !!! //
     private void DrawFreestyleButton_Click(object sender, RoutedEventArgs e)
@@ -390,16 +440,6 @@ public partial class MainWindow : Window
         _editSegmentMode = null;
     }
 
-    // !!! RAISE EVENT METHODS !!! //
-    private void RaiseMouseRightButtonDownEvent()
-    {
-        var mouseEventArgs = new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Right)
-        {
-            RoutedEvent = MouseRightButtonDownEvent
-        };
-        mainCanvas.RaiseEvent(mouseEventArgs);
-    }
-
     // !!! NEW WINDOW EVENTS !!! //
     private void ColorPickerRectangle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
@@ -415,7 +455,42 @@ public partial class MainWindow : Window
     // PRIVATE HELP METHODS
     // =========================================================
 
-    // !!! ADD AND MAKE VISIBLE METHOD !!! //
+    // !!! RAISE EVENT METHODS !!! //
+    private void RaiseMouseRightButtonDownEvent()
+    {
+        var mouseEventArgs = new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Right)
+        {
+            RoutedEvent = MouseRightButtonDownEvent
+        };
+        mainCanvas.RaiseEvent(mouseEventArgs);
+    }
+
+    // !!! FILE METHODS !!! //
+    private void HandleResultImage(Image? image)
+    {
+        if (image is not null)
+        {
+            var result = MessageBox.Show("Ta akcja wyczyści Twoje płótno! Czy na pewno chcesz kontynuować?",
+                "Potwierdź",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                mainCanvas.Children.Clear();
+                mainCanvas.Children.Add(image);
+            }
+        }
+        else
+        {
+            MessageBox.Show("Nieobsługiwany format pliku",
+                "Wystąpił błąd przy odczycie!",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+    }
+
+    // !!! ADD AND MAKE VISIBLE METHODS !!! //
     private void AddPointAndMakeVisible()
     {
         var width = DrawManager.EllipseProperties.Width;
@@ -625,14 +700,11 @@ public partial class MainWindow : Window
 
 
 
-    // !!! PUBLIC METHODS !!! ///
+    // =========================================================
+    // PUBLIC HELP METHODS
+    // =========================================================
     public void UpdateColorPicker()
     {
         colorPickerRectangle.Fill = DrawManager.GlobalProperties.BrushColor;
-    }
-
-    private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-    {
-
     }
 }
