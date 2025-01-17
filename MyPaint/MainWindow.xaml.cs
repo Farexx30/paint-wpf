@@ -68,6 +68,7 @@ public partial class MainWindow : Window
     // PRIVATE EVENT METHODS
     // ==================================================
 
+
     // !!! MOUSE EVENTS !!! //
     private void MainCanvas_MouseMove(object sender, MouseEventArgs e)
     {
@@ -371,8 +372,7 @@ public partial class MainWindow : Window
     // !!! NEW WINDOW EVENTS !!! //
     private void ColorPickerRectangle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
-        var colorPickerWindow = new ColorPickerWindow();
-
+        var colorPickerWindow = new ColorPickerWindow(this);
         colorPickerWindow.Show();
     }
 
@@ -589,5 +589,13 @@ public partial class MainWindow : Window
             RemoveSegmentPointEffect(segmentPoint);
         }
         _segmentPointEffects.Clear();
+    }
+
+
+
+    // !!! PUBLIC METHODS !!! ///
+    public void UpdateColorPicker()
+    {
+        colorPickerRectangle.Fill = DrawManager.GlobalProperties.BrushColor;
     }
 }

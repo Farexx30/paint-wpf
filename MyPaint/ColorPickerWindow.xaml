@@ -9,8 +9,8 @@
         ResizeMode="NoResize">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="250*"/>
-            <ColumnDefinition Width="150*"/>
+            <ColumnDefinition Width="260*"/>
+            <ColumnDefinition Width="140*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="40*"/>
@@ -31,6 +31,7 @@
         
         <Label Content="H" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" FontWeight="Bold" Margin="115,8,0,0" Height="30"/>
         <TextBox x:Name="hValueTextBox" Width="70" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18"  Text="{Binding H, UpdateSourceTrigger=PropertyChanged}" MaxLength="7" Margin="142,12,0,0" PreviewTextInput="HsvValueTextBox_PreviewTextInput" />
+        <Label Content="°" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" FontWeight="Bold" Margin="216,8,0,0" Height="30"/>
 
         <Label Content="S" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" FontWeight="Bold" Margin="115,38,0,0" Height="30"/>
         <TextBox x:Name="sValueTextBox" Width="70" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="18" Text="{Binding S, UpdateSourceTrigger=PropertyChanged}" MaxLength="7" Margin="142,42,0,0" PreviewTextInput="HsvValueTextBox_PreviewTextInput" />
