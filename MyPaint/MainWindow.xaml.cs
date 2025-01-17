@@ -1,4 +1,5 @@
 ﻿using Emgu.CV.Structure;
+using System.ComponentModel;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -44,6 +45,8 @@ public partial class MainWindow : Window
     private DrawStyle _drawStyle = DrawStyle.Freestyle;
     private Point? _currentMousePosition;
 
+    // !! COLOR PICKER WINDOW FIELDS !! //
+    private ColorPickerWindow? _colorPickerWindow;
     // !! SEGMENT AND BROKE LINE FIELDS !!! //
     private Line? _currentSegment;
     private Point? _newSegmentStartPoint;
@@ -67,6 +70,13 @@ public partial class MainWindow : Window
     // ==================================================
     // PRIVATE EVENT METHODS
     // ==================================================
+
+    // !!! MAIN WINDOW EVENTS !!! //
+    private void MainWindow_Closing(object sender, CancelEventArgs e)
+    {
+        _colorPickerWindow?.Close();
+        _colorPickerWindow = null;
+    }
 
 
     // !!! MOUSE EVENTS !!! //
@@ -372,8 +382,9 @@ public partial class MainWindow : Window
     // !!! NEW WINDOW EVENTS !!! //
     private void ColorPickerRectangle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
-        var colorPickerWindow = new ColorPickerWindow(this);
-        colorPickerWindow.Show();
+        _colorPickerWindow = new ColorPickerWindow(this);
+
+        _colorPickerWindow.Show();
     }
 
 
@@ -597,5 +608,10 @@ public partial class MainWindow : Window
     public void UpdateColorPicker()
     {
         colorPickerRectangle.Fill = DrawManager.GlobalProperties.BrushColor;
+    }
+
+    private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+    {
+
     }
 }
