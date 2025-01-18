@@ -8,20 +8,27 @@
         Title="MainWindow" Height="450" Width="800"
         Closing="MainWindow_Closing">
     <Grid>
-        <Grid.RowDefinitions>
+     <!--   <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+        </Grid.RowDefinitions> -->
+               
+        <Canvas Name="mainCanvas"
+                MouseLeftButtonDown="MainCanvas_MouseLeftButtonDown"
+                MouseMove="MainCanvas_MouseMove" 
+                MouseRightButtonDown="MainCanvas_MouseRightButtonDown"
+                Background="White">
+        </Canvas>
 
-        <ToolBarPanel Grid.Row="0">
+        <ToolBarPanel>
             <ToolBar VerticalAlignment="Top" Background="LightGray" 
                      PreviewMouseLeftButtonDown="ToolBar_PreviewMouseLeftButtonDown">
                 <Menu Background="LightGray">
                     <MenuItem Header="Plik">
-                        <MenuItem x:Name="saveToFileButton" Header="Zapisz jako..." 
-                                  Click="SaveToFileButton_Click"/>
-                        <MenuItem x:Name="loadFromFileButton" Header="Wczytaj..." 
-                                  Click="LoadFromFileButton_Click"/>
+                        <MenuItem x:Name="saveToFileMenuItem" Header="Zapisz jako..." 
+                                  Click="SaveToFileMenuItem_Click"/>
+                        <MenuItem x:Name="loadFromFileMenuItem" Header="Wczytaj..." 
+                                  Click="LoadFromFileMenuItem_Click"/>
                     </MenuItem>
                 </Menu>
                 <Button x:Name="drawFreestyleButton" 
@@ -51,6 +58,14 @@
                                   Click="DrawPolygonMenuItem_Click"/>
                     </MenuItem>
                 </Menu>
+                <Menu Background="LightGray">
+                    <MenuItem Header="Zastosuj filtr">
+                        <MenuItem x:Name="sobelFilterMenuItem" Header="Sobel" 
+                  Click="ApplySobelFilterMenuItem_Click"/>
+                        <MenuItem x:Name="customFilterMenuItem" Header="Własny" 
+                  Click="ApplyCustomFilterMenuItem_Click"/>
+                    </MenuItem>
+                </Menu>
                 <Rectangle x:Name="colorPickerRectangle" Height="20" Width="20" 
                            Margin="2" Fill="Black" 
                            MouseLeftButtonDown="ColorPickerRectangle_MouseLeftButtonDown">
@@ -58,11 +73,5 @@
             </ToolBar>
         </ToolBarPanel>
 
-        <Canvas Name="mainCanvas" Grid.Row="1" 
-                MouseLeftButtonDown="MainCanvas_MouseLeftButtonDown"
-                MouseMove="MainCanvas_MouseMove" 
-                MouseRightButtonDown="MainCanvas_MouseRightButtonDown"
-                Background="White">
-        </Canvas>
     </Grid>
 </Window>
