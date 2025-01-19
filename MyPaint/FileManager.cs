@@ -8,13 +8,15 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.Windows.Media;
 using System.Windows;
+using System.Windows.Markup;
 
 namespace MyPaint;
 
 internal enum FileExtension
 {
     Png,
-    Jpeg
+    Jpeg,
+    Bmp
 }
 
 internal static class FileManager
@@ -29,14 +31,7 @@ internal static class FileManager
         canvas.Measure(size);
         canvas.Arrange(new Rect(size));
 
-        var renderTargetBitMap = new RenderTargetBitmap(
-            (int)size.Width,
-            (int)size.Height,
-            96d,
-            96d,
-            PixelFormats.Pbgra32);
-
-        renderTargetBitMap.Render(canvas);
+        var renderTargetBitMap = canvas.ToRenderTargetBitmap();
 
         using (var fileStream = new FileStream(path.LocalPath, FileMode.Create))
         {
@@ -48,7 +43,7 @@ internal static class FileManager
         canvas.LayoutTransform = transform;
     }
 
-    internal static Image? LoadFromFile(Uri path, FileExtension fileExtension = FileExtension.Png)
+    internal static Image? LoadFromFile(Uri path)
     {
         var bitmapImage = new BitmapImage();
         using (var fileStream = new FileStream(path.LocalPath, FileMode.Open, FileAccess.Read))
@@ -61,11 +56,15 @@ internal static class FileManager
 
         var image = new Image
         {
-            Source = bitmapImage,
-            Stretch = Stretch.None
+            Source = bitmapImage
         };
 
         return image;
+    }
+
+    internal static void DeleteFile(Uri path)
+    {
+        File.Delete(path.LocalPath);
     }
 
     private static BitmapEncoder GetBitmapEncoder(FileExtension fileExtension)
@@ -78,6 +77,9 @@ internal static class FileManager
                 break;
             case FileExtension.Jpeg:
                 bitmapEncoder = new JpegBitmapEncoder();
+                break;
+            case FileExtension.Bmp:
+                bitmapEncoder = new BmpBitmapEncoder();
                 break;
         }
 

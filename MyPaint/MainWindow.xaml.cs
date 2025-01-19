@@ -1,6 +1,11 @@
-﻿using Emgu.CV.Structure;
+﻿using Emgu.CV;
+using Emgu.CV.CvEnum;
+using Emgu.CV.Structure;
 using Microsoft.Win32;
 using System.ComponentModel;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,6 +18,12 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Ellipse = System.Windows.Shapes.Ellipse;
+using Color = System.Windows.Media.Color;
+using Image = System.Windows.Controls.Image;
+using Path = System.IO.Path;
+using Point = System.Windows.Point;
+using System.Drawing.Drawing2D;
 
 namespace MyPaint;
 
@@ -32,16 +43,19 @@ public partial class MainWindow : Window
     private DrawStyle _drawStyle = DrawStyle.Freestyle;
     private Point? _currentMousePosition;
 
-    // !! COLOR PICKER WINDOW FIELDS !! //
+    // !! WINDOW FIELDS !! //
     private ColorPickerWindow? _colorPickerWindow;
+    private MatrixFilterWindow? _matrixFilterWindow;
     // !! SEGMENT AND BROKE LINE FIELDS !!! //
     private Line? _currentSegment;
     private Point? _newSegmentStartPoint;
-    // !!! SEGMENT FIELDS !!! //
+    // !! SEGMENT FIELDS !! //
     private Point? _oldSegmentPoint;
     private EditSegmentMode? _editSegmentMode;
     private readonly List<Line> _segments = [];
-    private readonly List<System.Windows.Shapes.Ellipse> _segmentPointEffects = [];
+    private readonly List<Ellipse> _segmentPointEffects = [];
+    // !! FOR TEMP FILE !! //
+    private const string _tempFileName = "temp.bmp";
 
     // !!! HELP FIELDS !!! /!
     private bool _isMenuFocused = false;
@@ -62,7 +76,9 @@ public partial class MainWindow : Window
     private void MainWindow_Closing(object sender, CancelEventArgs e)
     {
         _colorPickerWindow?.Close();
+        _matrixFilterWindow?.Close();
         _colorPickerWindow = null;
+        _matrixFilterWindow = null;
     }
 
 
@@ -204,7 +220,7 @@ public partial class MainWindow : Window
     }
 
     // !!! SAVE AND LOAD FILE EVENTS !!! //
-    private void SaveToFileButton_Click(object sender, RoutedEventArgs e)
+    private void SaveToFileMenuItem_Click(object sender, RoutedEventArgs e)
     {
         if (_currentSegment is not null)
         {
@@ -214,26 +230,30 @@ public partial class MainWindow : Window
         var saveFileDialog = new SaveFileDialog
         {
             Title = "Save an image file",
-            Filter = "Image file (*.png)|*.png|Image file (*.jpeg)|*.jpeg"
+            Filter = "Image file (*.png)|*.png|Image file (*.jpeg)|*.jpeg|Image file (*.bmp)|*.bmp"
         };
 
         if (saveFileDialog.ShowDialog() == true)
         {
-            var path = new Uri(saveFileDialog.FileName);
-            var fileExtension = System.IO.Path.GetExtension(saveFileDialog.FileName);
+            var pathUri = new Uri(saveFileDialog.FileName);
+            var fileExtension = Path.GetExtension(saveFileDialog.FileName);
 
-            if (path is not null)
+            if (pathUri is not null)
             {
                 var pngExtension = $".{nameof(FileExtension.Png)}";
                 var jpegExtension = $".{nameof(FileExtension.Jpeg)}";
+                var bmpExtension = $".{nameof(FileExtension.Bmp)}";
 
                 switch (fileExtension)
                 {
                     case var extension when extension.Equals(pngExtension, StringComparison.OrdinalIgnoreCase):
-                        FileManager.SaveToFile(path, mainCanvas, FileExtension.Png);
+                        FileManager.SaveToFile(pathUri, mainCanvas, FileExtension.Png);
                         break;
                     case var extension when extension.Equals(jpegExtension, StringComparison.OrdinalIgnoreCase):
-                        FileManager.SaveToFile(path, mainCanvas, FileExtension.Jpeg);
+                        FileManager.SaveToFile(pathUri, mainCanvas, FileExtension.Jpeg);
+                        break;
+                    case var extension when extension.Equals(bmpExtension, StringComparison.OrdinalIgnoreCase):
+                        FileManager.SaveToFile(pathUri, mainCanvas, FileExtension.Bmp);
                         break;
                     default:
                         MessageBox.Show("Nieobsługiwany format pliku",
@@ -246,7 +266,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private void LoadFromFileButton_Click(object sender, RoutedEventArgs e)
+    private void LoadFromFileMenuItem_Click(object sender, RoutedEventArgs e)
     {
         if (_currentSegment is not null)
         {
@@ -256,31 +276,29 @@ public partial class MainWindow : Window
         var openFileDialog = new OpenFileDialog
         {
             Title = "Load an image file",
-            Filter = "Image file (*.png)|*.png|Image file (*.jpeg)|*.jpeg"
+            Filter = "Image file (*.png)|*.png|Image file (*.jpeg)|*.jpeg|Image file (*.bmp)|*.bmp"
         };
 
         if (openFileDialog.ShowDialog() == true)
         {
-            var path = new Uri(openFileDialog.FileName);
-            var fileExtension = System.IO.Path.GetExtension(openFileDialog.FileName);
+            var pathUri = new Uri(openFileDialog.FileName);
+            var fileExtension = Path.GetExtension(openFileDialog.FileName);
 
-            if (path is not null)
+            if (pathUri is not null)
             {
                 var pngExtension = $".{nameof(FileExtension.Png)}";
                 var jpegExtension = $".{nameof(FileExtension.Jpeg)}";
+                var bmpExtension = $".{nameof(FileExtension.Bmp)}";
 
-                Image? image = fileExtension switch
+                Image? image = null;
+                if (fileExtension.Equals(pngExtension, StringComparison.OrdinalIgnoreCase)
+                    || fileExtension.Equals(jpegExtension, StringComparison.OrdinalIgnoreCase)
+                    || fileExtension.Equals(bmpExtension, StringComparison.OrdinalIgnoreCase))
                 {
-                    var extension when extension.Equals(pngExtension, StringComparison.OrdinalIgnoreCase) 
-                        => FileManager.LoadFromFile(path, FileExtension.Png),
+                    image = FileManager.LoadFromFile(pathUri);
+                }                           
 
-                    var extension when extension.Equals(jpegExtension, StringComparison.OrdinalIgnoreCase)
-                        => FileManager.LoadFromFile(path, FileExtension.Jpeg),
-
-                    _ => null
-                };
-
-                HandleResultImage(image);
+                HandleResultImage(image); //adds to canvas
             }
         }
     }
@@ -440,12 +458,52 @@ public partial class MainWindow : Window
         _editSegmentMode = null;
     }
 
+    // !!! APPLY FILTER EVENTS !!! //
+    private void ApplySobelFilterMenuItem_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentSegment is not null)
+        {
+            RaiseMouseRightButtonDownEvent();
+        }
+
+        var tempFileFullPath = Path.Combine(Directory.GetCurrentDirectory(), _tempFileName);
+        var tempFileUri = new Uri(tempFileFullPath);
+        FileManager.SaveToFile(tempFileUri, mainCanvas, FileExtension.Bmp);
+
+        ApplySobelFilterOnTempFile();
+
+        var processedImage = FileManager.LoadFromFile(tempFileUri);
+        ClearCanvas();
+        mainCanvas.Children.Add(processedImage);
+
+        FileManager.DeleteFile(tempFileUri);
+    }
+
+
     // !!! NEW WINDOW EVENTS !!! //
     private void ColorPickerRectangle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
-        _colorPickerWindow = new ColorPickerWindow(this);
+        if (_currentSegment is not null)
+        {
+            RaiseMouseRightButtonDownEvent();
+        }
 
+        _colorPickerWindow = new ColorPickerWindow(this);
         _colorPickerWindow.Show();
+
+        colorPickerRectangle.IsEnabled = false;
+    }
+
+    private void ApplyMatrixFilterMenuItem_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentSegment is not null)
+        {
+            RaiseMouseRightButtonDownEvent();
+        }
+        _matrixFilterWindow = new MatrixFilterWindow(this);
+        _matrixFilterWindow.Show();
+
+        matrixFilterMenuItem.IsEnabled = false;
     }
 
 
@@ -477,7 +535,7 @@ public partial class MainWindow : Window
 
             if (result == MessageBoxResult.Yes)
             {
-                mainCanvas.Children.Clear();
+                ClearCanvas();
                 mainCanvas.Children.Add(image);
             }
         }
@@ -681,7 +739,7 @@ public partial class MainWindow : Window
         _segmentPointEffects.Add(ellipseEffect);
     }
 
-    private void RemoveSegmentPointEffect(System.Windows.Shapes.Ellipse segmentPoint)
+    private void RemoveSegmentPointEffect(Ellipse segmentPoint)
     {
         mainCanvas.Children.Remove(segmentPoint);
     }
@@ -707,13 +765,80 @@ public partial class MainWindow : Window
         _segmentPointEffects.Clear();
     }
 
+    // !!! FILTER METHODS !!! //
+    private static void ApplySobelFilterOnTempFile()
+    {
+        var image = new Image<Rgb, byte>(_tempFileName);
+        var grayImage = image.Convert<Gray, byte>();
+        var graySobelImage = grayImage.Sobel(0, 1, 3);
+        graySobelImage.Save(_tempFileName);
+    }
+
+    private static void ApplyMatrixFilter(float[,] matrix, bool shouldNormalize, bool shouldApplyGrayscale)
+    {
+        var image = new Image<Rgb, byte>(_tempFileName);
+        matrix = shouldNormalize ? matrix.Normalize() : matrix;
+        var kernel = new ConvolutionKernelF(matrix);
+
+        if (shouldApplyGrayscale)
+        {
+            var grayImage = image.Convert<Gray, byte>();
+            var dst = new Mat(image.Size, DepthType.Cv8U, 1);
+            var anchor = new System.Drawing.Point(-1, -1);
+            CvInvoke.Filter2D(grayImage,
+                dst,
+                kernel,
+                anchor);
+
+            dst.Save(_tempFileName);
+        }
+        else
+        {
+            var dst = new Mat(image.Size, DepthType.Cv8U, 3);
+            var anchor = new System.Drawing.Point(-1, -1);
+            CvInvoke.Filter2D(image,
+                dst,
+                kernel,
+                anchor);
+
+            dst.Save(_tempFileName);
+        }
+    }
+
+    // !!! CANVAS METHODS !!! //
+    private void ClearCanvas()
+    {
+        mainCanvas.Children.Clear();
+
+        _currentSegment = null;
+        _newSegmentStartPoint = null;
+        _oldSegmentPoint = null;
+        _editSegmentMode = null;
+        _segments.Clear();
+       _segmentPointEffects.Clear();
+    }
 
 
     // =========================================================
-    // PUBLIC HELP METHODS
+    // PUBLIC METHODS
     // =========================================================
     public void UpdateColorPicker()
     {
         colorPickerRectangle.Fill = DrawManager.GlobalProperties.BrushColor;
+    }
+
+    public void ApplyMatrixFilterOnCanvas(float[,] matrix, bool shouldNormalize, bool shouldApplyGrayscale)
+    {       
+        var tempFileFullPath = Path.Combine(Directory.GetCurrentDirectory(), _tempFileName);
+        var tempFileUri = new Uri(tempFileFullPath);
+        FileManager.SaveToFile(tempFileUri, mainCanvas, FileExtension.Bmp);
+
+        ApplyMatrixFilter(matrix, shouldNormalize, shouldApplyGrayscale);
+    
+        var processedImage = FileManager.LoadFromFile(tempFileUri);
+        ClearCanvas();
+        mainCanvas.Children.Add(processedImage);
+
+        FileManager.DeleteFile(tempFileUri);
     }
 }

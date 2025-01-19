@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:MyPaint"
         mc:Ignorable="d"
         Title="ColorPickerWindow" Width="400" Height="220"
+        Closed="ColorPickerWindow_Closed"
         ResizeMode="NoResize">
     <Grid>
         <Grid.ColumnDefinitions>

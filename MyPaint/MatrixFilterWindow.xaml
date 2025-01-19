@@ -1,0 +1,37 @@
+﻿<Window x:Class="MyPaint.MatrixFilterWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MyPaint"
+        mc:Ignorable="d"
+        Closed="MatrixFilterWindow_Closed"
+        Title="MatrixFilterWindow" Width="400" Height="220">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40*"/>
+            <RowDefinition Height="120*"/>
+            <RowDefinition Height="40*"/>
+        </Grid.RowDefinitions>
+
+        <Label Content="Dostosuj filtr" HorizontalAlignment="Center" VerticalAlignment="Top" FontWeight="ExtraBold" Grid.Row="0" Grid.Column="0" FontSize="20"/>
+
+        <TextBox x:Name="matrix00ValueTextBox" Width="50" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Text="0" FontSize="16" MaxLength="5" Margin="27,15,0,0" PreviewTextInput="MatrixCoordinateTextBox_PreviewTextInput" />
+        <TextBox x:Name="matrix01ValueTextBox" Width="50" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Text="0" FontSize="16" MaxLength="5" Margin="27,45,0,0" PreviewTextInput="MatrixCoordinateTextBox_PreviewTextInput" />
+        <TextBox x:Name="matrix02ValueTextBox" Width="50" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Text="0" FontSize="16" MaxLength="5" Margin="27,75,0,0" PreviewTextInput="MatrixCoordinateTextBox_PreviewTextInput"/>
+        <TextBox x:Name="matrix10ValueTextBox" Width="50" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Text="0" FontSize="16" MaxLength="5" Margin="92,15,0,0" PreviewTextInput="MatrixCoordinateTextBox_PreviewTextInput"/>
+        <TextBox x:Name="matrix11ValueTextBox" Width="50" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Text="0" FontSize="16" MaxLength="5" Margin="92,45,0,0" PreviewTextInput="MatrixCoordinateTextBox_PreviewTextInput"/>
+        <TextBox x:Name="matrix12ValueTextBox" Width="50" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Text="0" FontSize="16" MaxLength="5" Margin="92,75,0,0" PreviewTextInput="MatrixCoordinateTextBox_PreviewTextInput"/>
+        <TextBox x:Name="matrix20ValueTextBox" Width="50" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Text="0" FontSize="16" MaxLength="5" Margin="157,15,0,0" PreviewTextInput="MatrixCoordinateTextBox_PreviewTextInput"/>
+        <TextBox x:Name="matrix21ValueTextBox" Width="50" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Text="0" FontSize="16" MaxLength="5" Margin="157,45,0,0" PreviewTextInput="MatrixCoordinateTextBox_PreviewTextInput"/>
+        <TextBox x:Name="matrix22ValueTextBox" Width="50" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Text="0" FontSize="16" MaxLength="5" Margin="157,75,0,0" PreviewTextInput="MatrixCoordinateTextBox_PreviewTextInput"/>
+
+        <CheckBox Name="normalizationCheckBox" Content="Normalizacja" IsChecked="True" Grid.Row="1" Margin="252, 20, 0, 0" />
+        <CheckBox Name="grayscaleCheckBox" Content="Skala szarości" IsChecked="True" Grid.Row="1" Margin="252, 80, 0, 0"/>
+
+        <Button Name="applyButton" Content="Zastosuj" Width="80" Grid.Row="2" HorizontalAlignment="Left" Margin="75,5,0,5" Click="SaveButton_Click" />
+        <Button Name="cancelButton" Content="Anuluj" Width="80" HorizontalAlignment="Right" Grid.Row="2" Margin="0,5,75,5" Click="CancelButton_Click"/>
+
+        
+    </Grid>
+</Window>
