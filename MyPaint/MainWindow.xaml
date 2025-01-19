@@ -62,8 +62,8 @@
                     <MenuItem Header="Zastosuj filtr">
                         <MenuItem x:Name="sobelFilterMenuItem" Header="Sobel" 
                   Click="ApplySobelFilterMenuItem_Click"/>
-                        <MenuItem x:Name="customFilterMenuItem" Header="Własny" 
-                  Click="ApplyCustomFilterMenuItem_Click"/>
+                        <MenuItem x:Name="matrixFilterMenuItem" Header="Filtr macierzowy" 
+                  Click="ApplyMatrixFilterMenuItem_Click"/>
                     </MenuItem>
                 </Menu>
                 <Rectangle x:Name="colorPickerRectangle" Height="20" Width="20" 

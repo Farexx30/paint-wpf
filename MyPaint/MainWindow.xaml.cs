@@ -18,10 +18,12 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Ellipse = System.Windows.Shapes.Ellipse;
 using Color = System.Windows.Media.Color;
 using Image = System.Windows.Controls.Image;
 using Path = System.IO.Path;
 using Point = System.Windows.Point;
+using System.Drawing.Drawing2D;
 
 namespace MyPaint;
 
@@ -41,16 +43,19 @@ public partial class MainWindow : Window
     private DrawStyle _drawStyle = DrawStyle.Freestyle;
     private Point? _currentMousePosition;
 
-    // !! COLOR PICKER WINDOW FIELDS !! //
+    // !! WINDOW FIELDS !! //
     private ColorPickerWindow? _colorPickerWindow;
+    private MatrixFilterWindow? _matrixFilterWindow;
     // !! SEGMENT AND BROKE LINE FIELDS !!! //
     private Line? _currentSegment;
     private Point? _newSegmentStartPoint;
-    // !!! SEGMENT FIELDS !!! //
+    // !! SEGMENT FIELDS !! //
     private Point? _oldSegmentPoint;
     private EditSegmentMode? _editSegmentMode;
     private readonly List<Line> _segments = [];
-    private readonly List<System.Windows.Shapes.Ellipse> _segmentPointEffects = [];
+    private readonly List<Ellipse> _segmentPointEffects = [];
+    // !! FOR TEMP FILE !! //
+    private const string _tempFileName = "temp.bmp";
 
     // !!! HELP FIELDS !!! /!
     private bool _isMenuFocused = false;
@@ -71,7 +76,9 @@ public partial class MainWindow : Window
     private void MainWindow_Closing(object sender, CancelEventArgs e)
     {
         _colorPickerWindow?.Close();
+        _matrixFilterWindow?.Close();
         _colorPickerWindow = null;
+        _matrixFilterWindow = null;
     }
 
 
@@ -459,27 +466,17 @@ public partial class MainWindow : Window
             RaiseMouseRightButtonDownEvent();
         }
 
-        const string tempFileName = "tempSobel.bmp";
-        var tempFileFullPath = Path.Combine(Directory.GetCurrentDirectory(), tempFileName);
+        var tempFileFullPath = Path.Combine(Directory.GetCurrentDirectory(), _tempFileName);
         var tempFileUri = new Uri(tempFileFullPath);
         FileManager.SaveToFile(tempFileUri, mainCanvas, FileExtension.Bmp);
 
-        ApplySobelFilterOnTempFile(tempFileName);
+        ApplySobelFilterOnTempFile();
 
         var processedImage = FileManager.LoadFromFile(tempFileUri);
         ClearCanvas();
         mainCanvas.Children.Add(processedImage);
 
         FileManager.DeleteFile(tempFileUri);
-    }
-
-    private void ApplyCustomFilterMenuItem_Click(object sender, RoutedEventArgs e)
-    {
-        if (_currentSegment is not null)
-        {
-            RaiseMouseRightButtonDownEvent();
-        }
-        //TODO
     }
 
 
@@ -493,6 +490,20 @@ public partial class MainWindow : Window
 
         _colorPickerWindow = new ColorPickerWindow(this);
         _colorPickerWindow.Show();
+
+        colorPickerRectangle.IsEnabled = false;
+    }
+
+    private void ApplyMatrixFilterMenuItem_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentSegment is not null)
+        {
+            RaiseMouseRightButtonDownEvent();
+        }
+        _matrixFilterWindow = new MatrixFilterWindow(this);
+        _matrixFilterWindow.Show();
+
+        matrixFilterMenuItem.IsEnabled = false;
     }
 
 
@@ -728,7 +739,7 @@ public partial class MainWindow : Window
         _segmentPointEffects.Add(ellipseEffect);
     }
 
-    private void RemoveSegmentPointEffect(System.Windows.Shapes.Ellipse segmentPoint)
+    private void RemoveSegmentPointEffect(Ellipse segmentPoint)
     {
         mainCanvas.Children.Remove(segmentPoint);
     }
@@ -755,12 +766,43 @@ public partial class MainWindow : Window
     }
 
     // !!! FILTER METHODS !!! //
-    private static void ApplySobelFilterOnTempFile(string tempFileName)
+    private static void ApplySobelFilterOnTempFile()
     {
-        var image = new Image<Rgb, byte>(tempFileName);
+        var image = new Image<Rgb, byte>(_tempFileName);
         var grayImage = image.Convert<Gray, byte>();
         var graySobelImage = grayImage.Sobel(0, 1, 3);
-        graySobelImage.Save(tempFileName);
+        graySobelImage.Save(_tempFileName);
+    }
+
+    private static void ApplyMatrixFilter(float[,] matrix, bool shouldNormalize, bool shouldApplyGrayscale)
+    {
+        var image = new Image<Rgb, byte>(_tempFileName);
+        matrix = shouldNormalize ? matrix.Normalize() : matrix;
+        var kernel = new ConvolutionKernelF(matrix);
+
+        if (shouldApplyGrayscale)
+        {
+            var grayImage = image.Convert<Gray, byte>();
+            var dst = new Mat(image.Size, DepthType.Cv8U, 1);
+            var anchor = new System.Drawing.Point(-1, -1);
+            CvInvoke.Filter2D(grayImage,
+                dst,
+                kernel,
+                anchor);
+
+            dst.Save(_tempFileName);
+        }
+        else
+        {
+            var dst = new Mat(image.Size, DepthType.Cv8U, 3);
+            var anchor = new System.Drawing.Point(-1, -1);
+            CvInvoke.Filter2D(image,
+                dst,
+                kernel,
+                anchor);
+
+            dst.Save(_tempFileName);
+        }
     }
 
     // !!! CANVAS METHODS !!! //
@@ -778,10 +820,25 @@ public partial class MainWindow : Window
 
 
     // =========================================================
-    // PUBLIC HELP METHODS
+    // PUBLIC METHODS
     // =========================================================
     public void UpdateColorPicker()
     {
         colorPickerRectangle.Fill = DrawManager.GlobalProperties.BrushColor;
+    }
+
+    public void ApplyMatrixFilterOnCanvas(float[,] matrix, bool shouldNormalize, bool shouldApplyGrayscale)
+    {       
+        var tempFileFullPath = Path.Combine(Directory.GetCurrentDirectory(), _tempFileName);
+        var tempFileUri = new Uri(tempFileFullPath);
+        FileManager.SaveToFile(tempFileUri, mainCanvas, FileExtension.Bmp);
+
+        ApplyMatrixFilter(matrix, shouldNormalize, shouldApplyGrayscale);
+    
+        var processedImage = FileManager.LoadFromFile(tempFileUri);
+        ClearCanvas();
+        mainCanvas.Children.Add(processedImage);
+
+        FileManager.DeleteFile(tempFileUri);
     }
 }

@@ -183,6 +183,10 @@ public partial class ColorPickerWindow : Window, INotifyPropertyChanged
         _isInitializing = false;
     }
 
+    private void ColorPickerWindow_Closed(object sender, EventArgs e)
+    {
+        _parentWindow.colorPickerRectangle.IsEnabled = true;
+    }
 
     // !!! VALIDATION EVENTS !!! //
     private void RgbValueTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -252,6 +256,7 @@ public partial class ColorPickerWindow : Window, INotifyPropertyChanged
     {
         DrawManager.GlobalProperties.BrushColor = new SolidColorBrush(_currentColor);
         _parentWindow.UpdateColorPicker(); //Updates color picker in Main Window. I used this approach only for simplicity because this window is coupled to MainWindow anyway.
+
         Close();
     }
 
