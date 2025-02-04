@@ -22,6 +22,7 @@ internal enum DrawStyle
     BrokenLine,
     Segment,
     EditSegment,
+    Erase
 }
 
 internal static class DrawManager
@@ -32,41 +33,32 @@ internal static class DrawManager
         internal static SolidColorBrush BrushColor { get; set; } = new SolidColorBrush(Color.FromRgb(0, 0, 0));
     }
 
-    internal static class LineProperties
-    {
-        //internal static SolidColorBrush BrushColor { get; set; } = new SolidColorBrush(Color.FromRgb(0, 0, 0));
-    }
-
     internal static class RectangleProperties
     {
         internal static double Width { get; set; } = 60d;
         internal static double Height { get; set; } = 40d;
-        //internal static SolidColorBrush BrushColor { get; set; } = new SolidColorBrush(Color.FromRgb(0, 0, 0));
     }
 
     internal static class EllipseProperties
     {
         internal static double Width { get; set; } = 60d;
         internal static double Height { get; set; } = 60d;
-        //internal static SolidColorBrush BrushColor { get; set; } = new SolidColorBrush(Color.FromRgb(0, 0, 0));
     }
 
     internal static class PolygonProperties
     {
         internal static double Size { get; set; } = 60d;
-        //internal static SolidColorBrush BrushColor { get; set; } = new SolidColorBrush(Color.FromRgb(0, 0, 0));
+        internal static uint NumberOfPoints { get; set; } = 6;
     }
 
     internal static class ArrowProperties
     {
         internal static double Size { get; set; } = 60d;
-        //internal static SolidColorBrush BrushColor { get; set; } = new SolidColorBrush(Color.FromRgb(0, 0, 0));
     }
 
     internal static class TreeProperties
     {
         internal static double Size { get; set; } = 40d;
-        //internal static SolidColorBrush BrushColor { get; set; } = new SolidColorBrush(Color.FromRgb(0, 0, 0));
     }
 
 

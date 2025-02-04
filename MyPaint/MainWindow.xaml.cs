@@ -24,6 +24,7 @@ using Image = System.Windows.Controls.Image;
 using Path = System.IO.Path;
 using Point = System.Windows.Point;
 using System.Drawing.Drawing2D;
+using System.Runtime.CompilerServices;
 
 namespace MyPaint;
 
@@ -38,8 +39,35 @@ internal enum EditSegmentMode
     EndPoint,
 }
 
-public partial class MainWindow : Window
+public partial class MainWindow : Window, INotifyPropertyChanged
 {
+    // !!! OnPropertyChanged for data binding !!! //
+    public event PropertyChangedEventHandler? PropertyChanged;
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    private string _numberOfPoints = "6";
+    public string NumberOfPoints
+    {
+        get => _numberOfPoints;
+        set
+        {
+            if (_numberOfPoints != value)
+            {
+                _numberOfPoints = value;
+                OnPropertyChanged();
+
+                if (!string.IsNullOrEmpty(_numberOfPoints))
+                {
+                    DrawManager.PolygonProperties.NumberOfPoints = Convert.ToUInt32(_numberOfPoints);
+                }
+            }
+        }
+    }
+
+
     private DrawStyle _drawStyle = DrawStyle.Freestyle;
     private Point? _currentMousePosition;
 
@@ -63,6 +91,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        DataContext = this;
     }
 
 
@@ -85,7 +114,7 @@ public partial class MainWindow : Window
     // !!! MOUSE EVENTS !!! //
     private void MainCanvas_MouseMove(object sender, MouseEventArgs e)
     {
-        if (e.LeftButton == MouseButtonState.Pressed 
+        if (e.LeftButton == MouseButtonState.Pressed
             && _drawStyle == DrawStyle.Freestyle
             && _currentMousePosition is not null)
         {
@@ -102,7 +131,7 @@ public partial class MainWindow : Window
 
             mainCanvas.Children.Add(line);
         }
-        else if ((_drawStyle == DrawStyle.Segment || _drawStyle == DrawStyle.BrokenLine) 
+        else if ((_drawStyle == DrawStyle.Segment || _drawStyle == DrawStyle.BrokenLine)
                 && _newSegmentStartPoint is not null)
         {
             _currentMousePosition = e.GetPosition(mainCanvas);
@@ -132,7 +161,24 @@ public partial class MainWindow : Window
                 _currentSegment.X2 = _currentMousePosition!.Value.X;
                 _currentSegment.Y2 = _currentMousePosition!.Value.Y;
             }
-        }      
+        }
+        else if (e.LeftButton == MouseButtonState.Pressed && _drawStyle == DrawStyle.Erase)
+        {
+            var element = e.Source as FrameworkElement;
+
+            if (element is not null && element is not Canvas)
+            {
+                if (mainCanvas.Children.Contains(element))
+                {
+                    if (_segments.Contains(element))
+                    {
+                        _segments.Remove((Line)element);
+                    }
+                }
+
+                mainCanvas.Children.Remove(element);
+            }
+        }
     }
 
     private void MainCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -186,7 +232,7 @@ public partial class MainWindow : Window
                 if (_editSegmentMode == EditSegmentMode.StartPoint)
                 {
                     _currentSegment.X1 = _oldSegmentPoint!.Value.X;
-                    _currentSegment.Y1 = _oldSegmentPoint!.Value.Y;                   
+                    _currentSegment.Y1 = _oldSegmentPoint!.Value.Y;
                 }
                 else
                 {
@@ -199,7 +245,7 @@ public partial class MainWindow : Window
                 _oldSegmentPoint = null;
                 _editSegmentMode = null;
             }
-        }              
+        }
     }
 
     // !!! TOOLBAR EVENTS !!! //
@@ -296,14 +342,14 @@ public partial class MainWindow : Window
                     || fileExtension.Equals(bmpExtension, StringComparison.OrdinalIgnoreCase))
                 {
                     image = FileManager.LoadFromFile(pathUri);
-                }                           
+                }
 
                 HandleResultImage(image); //adds to canvas
             }
         }
     }
 
-   
+
 
     // !!! CHANGE DRAW STYLE EVENTS !!! //
     private void DrawFreestyleButton_Click(object sender, RoutedEventArgs e)
@@ -315,10 +361,8 @@ public partial class MainWindow : Window
 
         _drawStyle = DrawStyle.Freestyle;
 
-        _newSegmentStartPoint = null;
-        RemoveSegmentPointsEffect();
-        _currentSegment = null;
-        _editSegmentMode = null;
+        HideNumberOfPointsInPolygonUIElements();
+        ResetSegmentProperties();
     }
 
     private void DrawPointsButton_Click(object sender, RoutedEventArgs e)
@@ -330,10 +374,8 @@ public partial class MainWindow : Window
 
         _drawStyle = DrawStyle.Point;
 
-        _newSegmentStartPoint = null;
-        RemoveSegmentPointsEffect();
-        _currentSegment = null;
-        _editSegmentMode = null;
+        HideNumberOfPointsInPolygonUIElements();
+        ResetSegmentProperties();
     }
 
     private void DrawBrokenLine_Click(object sender, RoutedEventArgs e)
@@ -345,10 +387,8 @@ public partial class MainWindow : Window
 
         _drawStyle = DrawStyle.BrokenLine;
 
-        _newSegmentStartPoint = null;
-        RemoveSegmentPointsEffect();
-        _currentSegment = null;
-        _editSegmentMode = null;
+        HideNumberOfPointsInPolygonUIElements();
+        ResetSegmentProperties();
     }
 
     private void DrawSegmentMenuItem_Click(object sender, RoutedEventArgs e)
@@ -360,10 +400,8 @@ public partial class MainWindow : Window
 
         _drawStyle = DrawStyle.Segment;
 
-        _newSegmentStartPoint = null;
-        RemoveSegmentPointsEffect();
-        _currentSegment = null;
-        _editSegmentMode = null;
+        HideNumberOfPointsInPolygonUIElements();
+        ResetSegmentProperties();
     }
 
     private void EditSegmentMenuItem_Click(object sender, RoutedEventArgs e)
@@ -373,13 +411,11 @@ public partial class MainWindow : Window
             RaiseMouseRightButtonDownEvent();
         }
 
-        _newSegmentStartPoint = null;
-        RemoveSegmentPointsEffect();
-        _currentSegment = null;
-        _editSegmentMode = null;
+        ResetSegmentProperties();
 
         _drawStyle = DrawStyle.EditSegment;
 
+        HideNumberOfPointsInPolygonUIElements();
         AddSegmentPointsEffect();
     }
 
@@ -392,10 +428,8 @@ public partial class MainWindow : Window
 
         _drawStyle = DrawStyle.Rectangle;
 
-        _newSegmentStartPoint = null;
-        RemoveSegmentPointsEffect();
-        _currentSegment = null;
-        _editSegmentMode = null;
+        HideNumberOfPointsInPolygonUIElements();
+        ResetSegmentProperties();
     }
 
     private void DrawEllipseButton_Click(object sender, RoutedEventArgs e)
@@ -407,10 +441,8 @@ public partial class MainWindow : Window
 
         _drawStyle = DrawStyle.Ellipse;
 
-        _newSegmentStartPoint = null;
-        RemoveSegmentPointsEffect();
-        _currentSegment = null;
-        _editSegmentMode = null;
+        HideNumberOfPointsInPolygonUIElements();
+        ResetSegmentProperties();
     }
 
     private void DrawArrowButton_Click(object sender, RoutedEventArgs e)
@@ -422,10 +454,8 @@ public partial class MainWindow : Window
 
         _drawStyle = DrawStyle.Arrow;
 
-        _newSegmentStartPoint = null;
-        RemoveSegmentPointsEffect();
-        _currentSegment = null;
-        _editSegmentMode = null;
+        HideNumberOfPointsInPolygonUIElements();
+        ResetSegmentProperties();
     }
 
     private void DrawTreeButton_Click(object sender, RoutedEventArgs e)
@@ -437,10 +467,8 @@ public partial class MainWindow : Window
 
         _drawStyle = DrawStyle.Tree;
 
-        _newSegmentStartPoint = null;
-        RemoveSegmentPointsEffect();
-        _currentSegment = null;
-        _editSegmentMode = null;
+        HideNumberOfPointsInPolygonUIElements();
+        ResetSegmentProperties();
     }
 
     private void DrawPolygonMenuItem_Click(object sender, RoutedEventArgs e)
@@ -449,13 +477,50 @@ public partial class MainWindow : Window
         {
             RaiseMouseRightButtonDownEvent();
         }
-
+        
         _drawStyle = DrawStyle.Polygon;
 
-        _newSegmentStartPoint = null;
-        RemoveSegmentPointsEffect();
-        _currentSegment = null;
-        _editSegmentMode = null;
+        MakeVisibleNumberOfPointsInPolygonUIElements();
+
+        ResetSegmentProperties();
+    }
+
+    private void NumberOfPointsInPolygonTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+    {
+        var newChar = Convert.ToChar(e.Text);
+        var textBox = sender as TextBox;
+        var newText = textBox!.Text.Insert(textBox.CaretIndex, e.Text);
+
+        if (!char.IsDigit(newChar) || Convert.ToUInt32(newText) < 1u)
+        {
+            e.Handled = true;
+        }
+    }
+
+    private void MakeVisibleNumberOfPointsInPolygonUIElements()
+    {
+        NumberOfPointsInPolygonLabel.Visibility = Visibility.Visible;
+        NumberOfPointsInPolygonTextBox.Visibility = Visibility.Visible;
+    }
+
+    private void HideNumberOfPointsInPolygonUIElements()
+    {
+        NumberOfPointsInPolygonLabel.Visibility = Visibility.Hidden;
+        NumberOfPointsInPolygonTextBox.Visibility = Visibility.Hidden;
+    }
+
+
+    private void EraseButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentSegment is not null)
+        {
+            RaiseMouseRightButtonDownEvent();
+        }
+
+        _drawStyle = DrawStyle.Erase;
+
+        HideNumberOfPointsInPolygonUIElements();
+        ResetSegmentProperties();
     }
 
     // !!! APPLY FILTER EVENTS !!! //
@@ -477,6 +542,16 @@ public partial class MainWindow : Window
         mainCanvas.Children.Add(processedImage);
 
         FileManager.DeleteFile(tempFileUri);
+    }
+
+
+    // !!! HELP METHOD !!! //
+    private void ResetSegmentProperties()
+    {
+        _newSegmentStartPoint = null;
+        RemoveSegmentPointsEffect();
+        _currentSegment = null;
+        _editSegmentMode = null;
     }
 
 
@@ -551,8 +626,8 @@ public partial class MainWindow : Window
     // !!! ADD AND MAKE VISIBLE METHODS !!! //
     private void AddPointAndMakeVisible()
     {
-        var width = DrawManager.EllipseProperties.Width;
-        var height = DrawManager.EllipseProperties.Height;
+        var width = DrawManager.EllipseProperties.Width / 6;
+        var height = DrawManager.EllipseProperties.Height / 6;
         var brushColor = DrawManager.GlobalProperties.BrushColor;
         var ellipse = DrawManager.DrawEllipse(width, height, brushColor, true);
 
@@ -618,7 +693,8 @@ public partial class MainWindow : Window
     {
         var size = DrawManager.PolygonProperties.Size;
         var brushColor = DrawManager.GlobalProperties.BrushColor;
-        var polygon = DrawManager.DrawRegularPolygon(_currentMousePosition!.Value, size, 8u, brushColor);
+        var numberOfPoints = DrawManager.PolygonProperties.NumberOfPoints;
+        var polygon = DrawManager.DrawRegularPolygon(_currentMousePosition!.Value, size, numberOfPoints, brushColor);
 
         mainCanvas.Children.Add(polygon);
     }
@@ -815,7 +891,7 @@ public partial class MainWindow : Window
         _oldSegmentPoint = null;
         _editSegmentMode = null;
         _segments.Clear();
-       _segmentPointEffects.Clear();
+        _segmentPointEffects.Clear();
     }
 
 
@@ -828,13 +904,13 @@ public partial class MainWindow : Window
     }
 
     public void ApplyMatrixFilterOnCanvas(float[,] matrix, bool shouldNormalize, bool shouldApplyGrayscale)
-    {       
+    {
         var tempFileFullPath = Path.Combine(Directory.GetCurrentDirectory(), _tempFileName);
         var tempFileUri = new Uri(tempFileFullPath);
         FileManager.SaveToFile(tempFileUri, mainCanvas, FileExtension.Bmp);
 
         ApplyMatrixFilter(matrix, shouldNormalize, shouldApplyGrayscale);
-    
+
         var processedImage = FileManager.LoadFromFile(tempFileUri);
         ClearCanvas();
         mainCanvas.Children.Add(processedImage);
